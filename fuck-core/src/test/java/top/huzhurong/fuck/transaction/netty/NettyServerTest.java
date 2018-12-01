@@ -19,7 +19,7 @@ public class NettyServerTest {
 
         UserService userService = new DefaultUserService();
         NettyServer nettyServer = new NettyServer(serialization, userService, register);
-
+        //zkCli 可以查看服务信息
         nettyServer.bind(21111);
     }
 

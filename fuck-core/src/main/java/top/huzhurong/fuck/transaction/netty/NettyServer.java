@@ -13,6 +13,7 @@ import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Server;
 import top.huzhurong.fuck.transaction.support.Provider;
+import top.huzhurong.fuck.util.NetUtils;
 
 import java.util.Collections;
 
@@ -70,7 +71,7 @@ public class NettyServer implements Server {
             Class<?> aClass = this.object.getClass();
 
             Provider provider = new Provider();
-            provider.setHost("127.0.0.1");
+            provider.setHost(NetUtils.getLocalHost());
             provider.setVersion("1.0.0");
             provider.setPort(port);
             provider.setServiceName(aClass.getName());
