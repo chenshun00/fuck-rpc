@@ -7,7 +7,6 @@ import io.protostuff.runtime.RuntimeSchema;
 import org.objenesis.Objenesis;
 import org.objenesis.ObjenesisStd;
 import top.huzhurong.fuck.serialization.ISerialization;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

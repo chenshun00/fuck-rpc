@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serializable;
+
 /**
  * @author luobo.cs@raycloud.com
  * @since 2018/12/1
@@ -11,9 +13,16 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Provider {
+public class Provider implements Serializable, Cloneable {
     private String serviceName;
     private String host;
     private Integer port;
     private String version;
+    private Integer weight;
+
+
+    @Override
+    public Provider clone() throws CloneNotSupportedException {
+        return (Provider) super.clone();
+    }
 }

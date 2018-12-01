@@ -37,7 +37,7 @@ public class NettyClient implements Client {
                             ch.pipeline()
                                     .addLast(new MessageDecoder(serialization))
                                     .addLast(new MessageEncoder(serialization))
-                                    .addLast(new HeartBeatHandler());
+                                    .addLast(new HeartBeatHandler(null));
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);

@@ -9,10 +9,12 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Getter;
 import lombok.Setter;
+import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Server;
+import top.huzhurong.fuck.transaction.support.Provider;
 
-import java.util.Objects;
+import java.util.Collections;
 
 /**
  * netty 服务端
@@ -29,6 +31,18 @@ public class NettyServer implements Server {
     @Setter
     private ISerialization serialization;
 
+    @Getter
+    @Setter
+    private Object object;
+
+    private IRegister register;
+
+    public NettyServer(ISerialization serialization, Object object, IRegister register) {
+        this.serialization = serialization;
+        this.object = object;
+        this.register = register;
+    }
+
     @Override
     public void bind(Integer port) {
         if (port <= 1000) {
@@ -39,7 +53,7 @@ public class NettyServer implements Server {
 
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
-            final HeartBeatHandler heartBeatHandler = new HeartBeatHandler();
+            final HeartBeatHandler heartBeatHandler = new HeartBeatHandler(this.object);
             serverBootstrap.group(boss, work)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -52,6 +66,16 @@ public class NettyServer implements Server {
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
+
+            Class<?> aClass = this.object.getClass();
+
+            Provider provider = new Provider();
+            provider.setHost("127.0.0.1");
+            provider.setVersion("1.0.0");
+            provider.setPort(port);
+            provider.setServiceName(aClass.getName());
+            register.registerService(Collections.singletonList(provider));
+
             channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();

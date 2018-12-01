@@ -1,8 +1,8 @@
 package top.huzhurong.fuck.register.zk;
 
 import com.github.zkclient.ZkClient;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.zookeeper.KeeperException;
 import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.transaction.support.Provider;
 
@@ -11,18 +11,23 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * 提供者启动的时候发布服务到zookeeper
+ * 消费者启动的时候从zookeeper拉取服务提供者，并且订阅服务
+ *
  * @author luobo.cs@raycloud.com
  * @since 2018/12/1
  */
 @Slf4j
 public class ZkRegister implements IRegister {
 
-    private final static String root_path = "/fuck";
+    public final static String root_path = "/fuck";
+    public final static String root_provider = "/provider";
     private final static String split = "#A#";
 
     private final static Integer default_session_timeout = 1000;
     private final static Integer default_connection_timeout = 10000;
 
+    @Getter
     private ZkClient zkClient;
 
     public ZkRegister(String host) {
@@ -47,7 +52,7 @@ public class ZkRegister implements IRegister {
             Integer port = provider.getPort();
             String serviceName = provider.getServiceName();
             String version = provider.getVersion();
-            String serverPath = root_path + "/" + serviceName + "/provider";
+            String serverPath = root_path + "/" + serviceName + root_provider;
             if (!zkClient.exists(serverPath)) {
                 zkClient.createPersistent(serverPath, true);
             }
@@ -65,7 +70,7 @@ public class ZkRegister implements IRegister {
     @Override
     public List<Provider> discover(String serviceName, String version) {
         assert zkClient != null;
-        String serverPath = root_path + "/" + serviceName + "/provider";
+        String serverPath = root_path + "/" + serviceName + root_provider;
         List<String> children = null;
         try {
             children = zkClient.getChildren(serverPath);
@@ -88,7 +93,7 @@ public class ZkRegister implements IRegister {
         return result;
     }
 
-    private Provider toProvider(String child) {
+    public Provider toProvider(String child) {
         assert child != null;
         String[] info = child.split(ZkRegister.split);
         assert info.length == 4;

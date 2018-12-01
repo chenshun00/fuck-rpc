@@ -22,7 +22,7 @@ public class ZkRegisterTest {
         {
             Provider provider = new Provider();
             provider.setHost("127.0.0.1");
-            provider.setPort(8876);
+            provider.setPort(4376);
             provider.setServiceName("top.huzhurong.fuck.UserService");
             provider.setVersion("1.0.0");
             providers.add(provider);
@@ -30,7 +30,7 @@ public class ZkRegisterTest {
         {
             Provider provider = new Provider();
             provider.setHost("127.0.0.1");
-            provider.setPort(9987);
+            provider.setPort(2387);
             provider.setServiceName("top.huzhurong.fuck.UserService");
             provider.setVersion("1.0.0");
             providers.add(provider);
@@ -38,7 +38,7 @@ public class ZkRegisterTest {
         {
             Provider provider = new Provider();
             provider.setHost("127.0.0.1");
-            provider.setPort(8876);
+            provider.setPort(8336);
             provider.setServiceName("top.huzhurong.fuck.CheckService");
             provider.setVersion("2.0.0");
             providers.add(provider);
@@ -48,14 +48,21 @@ public class ZkRegisterTest {
     @Test
     public void registerService() throws InterruptedException {
         register.registerService(providers);
-
-
         Thread.sleep(100000000000L);
     }
 
     @Test
-    public void discover() {
-        List<Provider> discover = register.discover("top.huzhurong.fuck.CheckService", "2.0.0");
+    public void discover() throws InterruptedException {
+        List<Provider> discover = register.discover("top.huzhurong.fuck.UserService", "1.0.0");
         discover.forEach(System.out::println);
+        discover.forEach(provider -> {
+            String path = ZkRegister.root_path + "/" + provider.getServiceName() + ZkRegister.root_provider;
+            ((ZkRegister) register).getZkClient().subscribeChildChanges(path, (parent, children) -> {
+                System.out.println(parent);
+                children.forEach(System.out::println);
+                System.out.println("=============");
+            });
+        });
+        Thread.sleep(100000000000L);
     }
 }
