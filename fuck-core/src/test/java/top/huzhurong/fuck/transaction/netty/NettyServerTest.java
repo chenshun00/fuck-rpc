@@ -5,6 +5,7 @@ import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.serialization.protobuff.ProtoBuffSerilize;
+import top.huzhurong.fuck.transaction.netty.ii.UserService;
 
 /**
  * @author luobo.cs@raycloud.com

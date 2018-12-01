@@ -18,12 +18,6 @@ import java.util.concurrent.Executors;
 @ChannelHandler.Sharable
 public class HeartBeatHandler extends SimpleChannelInboundHandler<Serializable> {
 
-    private Object object;
-
-    public HeartBeatHandler(Object object) {
-        this.object = object;
-    }
-
     private ExecutorService responseTask = Executors.newFixedThreadPool(10);
     private ExecutorService requestTask = Executors.newFixedThreadPool(5);
 

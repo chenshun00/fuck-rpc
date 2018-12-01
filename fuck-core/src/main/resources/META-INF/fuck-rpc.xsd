@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<xsd:schema xmlns="http://www.huzhurong.top/schema/fuck"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            xmlns:tool="http://www.springframework.org/schema/tool"
+            targetNamespace="http://www.huzhurong.top/schema/fuck"
+            elementFormDefault="qualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans"/>
+
+    <!--zookeeper 地址-->
+    <xsd:element name="address">
+        <xsd:complexType>
+            <xsd:attribute name="address" type="xsd:string" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[zookeeper 地址]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="session" type="xsd:integer">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[zookeeper 会话时长,毫秒]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="connection" type="xsd:integer">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[zookeeper 链接时长,毫秒]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="reference">
+        <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="interface" type="xsd:token" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[引用接口]]></xsd:documentation>
+                    <xsd:appinfo>
+                        <tool:annotation>
+                            <tool:expected-type type="java.lang.Class"/>
+                        </tool:annotation>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="version" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[服务版本]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="service">
+        <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:ID" use="required">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ The unique identifier for a bean. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="version" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[服务版本]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="interface" type="xsd:token" use="required">
+                <xsd:annotation>
+                    <xsd:documentation>
+                        <![CDATA[ Defines the interface to advertise for this service in the service registry. ]]></xsd:documentation>
+                    <xsd:appinfo>
+                        <tool:annotation>
+                            <tool:expected-type type="java.lang.Class"/>
+                        </tool:annotation>
+                    </xsd:appinfo>
+                </xsd:annotation>
+            </xsd:attribute>
+            <xsd:attribute name="ref" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ The service implementation instance bean id. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
+</xsd:schema>

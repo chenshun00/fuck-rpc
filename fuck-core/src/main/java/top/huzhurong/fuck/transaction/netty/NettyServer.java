@@ -36,6 +36,8 @@ public class NettyServer implements Server {
     @Setter
     private Object object;
 
+    @Getter
+    @Setter
     private IRegister register;
 
     public NettyServer(ISerialization serialization, Object object, IRegister register) {
@@ -43,6 +45,8 @@ public class NettyServer implements Server {
         this.object = object;
         this.register = register;
     }
+
+    private ChannelFuture channelFuture;
 
     @Override
     public void bind(Integer port) {
@@ -54,7 +58,7 @@ public class NettyServer implements Server {
 
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
-            final HeartBeatHandler heartBeatHandler = new HeartBeatHandler(this.object);
+            final HeartBeatHandler heartBeatHandler = new HeartBeatHandler();
             serverBootstrap.group(boss, work)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
@@ -66,7 +70,7 @@ public class NettyServer implements Server {
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
-            ChannelFuture channelFuture = serverBootstrap.bind(port).sync();
+            channelFuture = serverBootstrap.bind(port).sync();
 
             Class<?> aClass = this.object.getClass();
 
@@ -76,15 +80,14 @@ public class NettyServer implements Server {
             provider.setPort(port);
             provider.setServiceName(aClass.getName());
             register.registerService(Collections.singletonList(provider));
-
-            channelFuture.channel().closeFuture().sync();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void unRegister() {
+    public void unRegister() throws InterruptedException {
+        channelFuture.channel().closeFuture().sync();
         work.shutdownGracefully();
         boss.shutdownGracefully();
     }
