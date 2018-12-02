@@ -8,9 +8,31 @@
 
     <xsd:import namespace="http://www.springframework.org/schema/beans"/>
 
+    <xsd:element name="protocol">
+        <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[id]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="port" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[服务开放端口]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+
     <!--zookeeper 地址-->
     <xsd:element name="address">
         <xsd:complexType>
+            <xsd:attribute name="id" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[zookeeper id]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
             <xsd:attribute name="address" type="xsd:string" use="required">
                 <xsd:annotation>
                     <xsd:documentation><![CDATA[zookeeper 地址]]></xsd:documentation>
@@ -80,6 +102,12 @@
             <xsd:attribute name="ref" type="xsd:string">
                 <xsd:annotation>
                     <xsd:documentation><![CDATA[ The service implementation instance bean id. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="weight" type="xsd:integer" use="optional">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ 服务权重. ]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
         </xsd:complexType>

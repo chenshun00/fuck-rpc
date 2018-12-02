@@ -2,6 +2,7 @@ package top.huzhurong.fuck.register.zk;
 
 import com.github.zkclient.ZkClient;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.transaction.support.Provider;
@@ -28,7 +29,18 @@ public class ZkRegister implements IRegister {
     private final static Integer default_connection_timeout = 10000;
 
     @Getter
+    @Setter
     private ZkClient zkClient;
+
+    @Getter
+    @Setter
+    private Integer session = default_session_timeout;
+    @Getter
+    @Setter
+    private Integer connection = default_connection_timeout;
+
+    public ZkRegister() {
+    }
 
     public ZkRegister(String host) {
         this(host, default_session_timeout, default_connection_timeout);

@@ -12,6 +12,7 @@
     <modules>
         <module>fuck-core</module>
         <module>fuck-serialize</module>
+        <module>fuck-test</module>
     </modules>
 
 

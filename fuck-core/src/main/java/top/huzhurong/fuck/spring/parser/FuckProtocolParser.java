@@ -14,17 +14,30 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * @author luobo.cs@raycloud.com
- * @since 2018/12/1
+ * @since 2018/12/2
  */
 @Slf4j
-public class FuckAddressParser extends AbstractSingleBeanDefinitionParser {
+public class FuckProtocolParser extends AbstractSingleBeanDefinitionParser {
 
     private AtomicLong atomicLong = new AtomicLong(0);
 
     private Class aClass;
 
-    public FuckAddressParser(Class aClass) {
+    public FuckProtocolParser(Class aClass) {
         this.aClass = aClass;
+    }
+
+    @Override
+    protected void doParse(Element element, BeanDefinitionBuilder builder) {
+        try {
+            String port = element.getAttribute("port");
+            if (StringUtils.hasText(port)) {
+                builder.addPropertyValue("port", NumberUtils.parseNumber(port, Integer.class));
+            }
+        } catch (Exception ex) {
+            log.error("解析服务暴露端口失败," + ex.getMessage(), ex);
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -32,32 +45,12 @@ public class FuckAddressParser extends AbstractSingleBeanDefinitionParser {
         return this.aClass;
     }
 
-    @Override
-    protected void doParse(Element element, BeanDefinitionBuilder builder) {
-        try {
-            String address = element.getAttribute("address");
-            builder.addPropertyValue("address", address);
-            String session = element.getAttribute("session");
-            if (StringUtils.hasText(session)) {
-                Integer integer = NumberUtils.parseNumber(session, Integer.class);
-                builder.addPropertyValue("session", integer);
-            }
-            String connection = element.getAttribute("connection");
-            if (StringUtils.hasText(connection)) {
-                Integer integer = NumberUtils.parseNumber(connection, Integer.class);
-                builder.addPropertyValue("connection", integer);
-            }
-        } catch (Exception ex) {
-            log.error("解析 fuck-address 标签失败," + ex.getMessage(), ex);
-            throw new RuntimeException(ex);
-        }
-    }
-
     protected String resolveId(Element element, AbstractBeanDefinition definition, ParserContext parserContext)
             throws BeanDefinitionStoreException {
         String id = super.resolveId(element, definition, parserContext);
         if (StringUtils.hasText(id))
             return id;
-        return "address_" + atomicLong.getAndIncrement();
+        return "protocol_" + atomicLong.getAndIncrement();
     }
+
 }

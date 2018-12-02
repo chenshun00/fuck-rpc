@@ -19,7 +19,7 @@ public class NettyServerTest {
         IRegister register = new ZkRegister("127.0.0.1:2181");
 
         UserService userService = new DefaultUserService();
-        NettyServer nettyServer = new NettyServer(serialization, userService, register);
+        NettyServer nettyServer = new NettyServer(serialization);
         //zkCli 可以查看服务信息
         nettyServer.bind(21111);
     }

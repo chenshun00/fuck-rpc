@@ -9,13 +9,8 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Getter;
 import lombok.Setter;
-import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Server;
-import top.huzhurong.fuck.transaction.support.Provider;
-import top.huzhurong.fuck.util.NetUtils;
-
-import java.util.Collections;
 
 /**
  * netty 服务端
@@ -32,18 +27,8 @@ public class NettyServer implements Server {
     @Setter
     private ISerialization serialization;
 
-    @Getter
-    @Setter
-    private Object object;
-
-    @Getter
-    @Setter
-    private IRegister register;
-
-    public NettyServer(ISerialization serialization, Object object, IRegister register) {
+    public NettyServer(ISerialization serialization) {
         this.serialization = serialization;
-        this.object = object;
-        this.register = register;
     }
 
     private ChannelFuture channelFuture;
@@ -71,15 +56,6 @@ public class NettyServer implements Server {
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             channelFuture = serverBootstrap.bind(port).sync();
-
-            Class<?> aClass = this.object.getClass();
-
-            Provider provider = new Provider();
-            provider.setHost(NetUtils.getLocalHost());
-            provider.setVersion("1.0.0");
-            provider.setPort(port);
-            provider.setServiceName(aClass.getName());
-            register.registerService(Collections.singletonList(provider));
         } catch (Exception e) {
             e.printStackTrace();
         }
