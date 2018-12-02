@@ -1,4 +1,4 @@
-package top.huzhurong.fuck.transaction.netty;
+package top.huzhurong.fuck.transaction.netty.serilize;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,7 +14,7 @@ import java.util.List;
  * @since 2018/11/30
  */
 public class MessageDecoder extends ByteToMessageDecoder {
-    private static final int HEAD_LENGTH = 5;//最小数据包头长度
+    private static final int HEAD_LENGTH = 4;//最小数据包头长度
 
     private ISerialization serialization;
 
@@ -28,7 +28,7 @@ public class MessageDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) {
 
-        if (byteBuf.readableBytes() < HEAD_LENGTH) {
+        if (byteBuf.readableBytes() <= HEAD_LENGTH) {
             return;
         }
         byteBuf.markReaderIndex();//标记位置
@@ -43,6 +43,9 @@ public class MessageDecoder extends ByteToMessageDecoder {
         byte[] dataArray = new byte[dataLength];
         byteBuf.readBytes(dataArray);
         Response response = serialization.deSerialize(dataArray, Response.class);
+
+        System.out.println("MessageEncoder");
+
         list.add(response);
     }
 }

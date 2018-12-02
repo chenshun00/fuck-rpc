@@ -4,9 +4,14 @@ import com.github.zkclient.ZkClient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.Assert;
+import org.springframework.util.NumberUtils;
 import top.huzhurong.fuck.register.IRegister;
+import top.huzhurong.fuck.transaction.support.Consumer;
 import top.huzhurong.fuck.transaction.support.Provider;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,6 +28,7 @@ public class ZkRegister implements IRegister {
 
     public final static String root_path = "/fuck";
     public final static String root_provider = "/provider";
+    public final static String root_consumer = "/consumer";
     private final static String split = "#A#";
 
     private final static Integer default_session_timeout = 1000;
@@ -39,9 +45,6 @@ public class ZkRegister implements IRegister {
     @Setter
     private Integer connection = default_connection_timeout;
 
-    public ZkRegister() {
-    }
-
     public ZkRegister(String host) {
         this(host, default_session_timeout, default_connection_timeout);
     }
@@ -57,6 +60,25 @@ public class ZkRegister implements IRegister {
     }
 
     @Override
+    public void registerConsumer(Consumer consumer) {
+        Assert.notNull(consumer, "消费者信息不能为空");
+        String host = consumer.getHost();
+        String version = consumer.getVersion();
+        Integer timeout = consumer.getTimeout();
+        String consumerPath = root_path + "/" + consumer.getServiceName() + root_consumer;
+        if (!zkClient.exists(consumerPath)) {
+            zkClient.createPersistent(consumerPath, true);
+        }
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        Integer integer = Integer.valueOf(runtimeMXBean.getName().split("@")[0]);
+        String finalInfo = host + split + consumer.getServiceName() + split + version + split + timeout + split + integer;
+        String path = consumerPath + "/" + finalInfo;
+        if (!zkClient.exists(path)) {
+            zkClient.createEphemeral(path);
+        }
+    }
+
+    @Override
     public void registerService(List<Provider> providerList) {
         assert zkClient != null;
         providerList.parallelStream().forEach(provider -> {
@@ -64,11 +86,12 @@ public class ZkRegister implements IRegister {
             Integer port = provider.getPort();
             String serviceName = provider.getServiceName();
             String version = provider.getVersion();
+            Integer weight = provider.getWeight();
             String serverPath = root_path + "/" + serviceName + root_provider;
             if (!zkClient.exists(serverPath)) {
                 zkClient.createPersistent(serverPath, true);
             }
-            String finalInfo = host + split + port + split + serviceName + split + version;
+            String finalInfo = host + split + port + split + serviceName + split + version + split + weight + split + provider.getSerialization();
             String path = serverPath + "/" + finalInfo;
             if (!zkClient.exists(path)) {
                 log.info("注册服务:{}到ZooKeeper", serverPath);
@@ -108,12 +131,14 @@ public class ZkRegister implements IRegister {
     public Provider toProvider(String child) {
         assert child != null;
         String[] info = child.split(ZkRegister.split);
-        assert info.length == 4;
+        assert info.length == 5;
         Provider provider = new Provider();
         provider.setHost(info[0]);
         provider.setPort(Integer.valueOf(info[1]));
         provider.setServiceName(info[2]);
         provider.setVersion(info[3]);
+        provider.setWeight(NumberUtils.parseNumber(info[4], Integer.class));
+        provider.setSerialization(info[5]);
         return provider;
     }
 }

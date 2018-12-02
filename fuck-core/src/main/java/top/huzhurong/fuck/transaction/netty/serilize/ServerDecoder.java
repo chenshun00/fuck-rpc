@@ -1,0 +1,47 @@
+package top.huzhurong.fuck.transaction.netty.serilize;
+
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import top.huzhurong.fuck.serialization.ISerialization;
+import top.huzhurong.fuck.serialization.protobuff.ProtoBuffSerilize;
+import top.huzhurong.fuck.transaction.support.Request;
+import top.huzhurong.fuck.transaction.support.Response;
+
+import java.util.List;
+
+/**
+ * @author luobo.cs@raycloud.com
+ * @since 2018/12/2
+ */
+public class ServerDecoder extends ByteToMessageDecoder {
+    private static final int HEAD_LENGTH = 4;//最小数据包头长度
+
+    private ISerialization serialization;
+
+    public ServerDecoder(ISerialization serialization) {
+        this.serialization = serialization;
+    }
+
+    @Override
+    protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) {
+
+        if (byteBuf.readableBytes() <= HEAD_LENGTH) {
+            return;
+        }
+        byteBuf.markReaderIndex();//标记位置
+
+        int dataLength = byteBuf.readInt();
+
+        if (byteBuf.readableBytes() < dataLength) {
+            byteBuf.resetReaderIndex();
+            return;
+        }
+
+        byte[] dataArray = new byte[dataLength];
+        byteBuf.readBytes(dataArray);
+        Request response = serialization.deSerialize(dataArray, Request.class);
+        System.out.println("MessageEncoder");
+        list.add(response);
+    }
+}

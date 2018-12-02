@@ -1,4 +1,4 @@
-package top.huzhurong.fuck.transaction.netty;
+package top.huzhurong.fuck.transaction.netty.request;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -11,6 +11,12 @@ import lombok.Getter;
 import lombok.Setter;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Server;
+import top.huzhurong.fuck.transaction.netty.ClientTransactionHandler;
+import top.huzhurong.fuck.transaction.netty.ServerTransactionHandler;
+import top.huzhurong.fuck.transaction.netty.serilize.MessageDecoder;
+import top.huzhurong.fuck.transaction.netty.serilize.MessageEncoder;
+import top.huzhurong.fuck.transaction.netty.serilize.ServerDecoder;
+import top.huzhurong.fuck.transaction.netty.serilize.ServerEncoder;
 
 /**
  * netty 服务端
@@ -35,23 +41,20 @@ public class NettyServer implements Server {
 
     @Override
     public void bind(Integer port) {
-        if (port <= 1000) {
-            port = 11911;
-        }
         boss = new NioEventLoopGroup(1);
         work = new NioEventLoopGroup(1);
 
         try {
             ServerBootstrap serverBootstrap = new ServerBootstrap();
-            final HeartBeatHandler heartBeatHandler = new HeartBeatHandler();
+            final ServerTransactionHandler serverTransactionHandler = new ServerTransactionHandler();
             serverBootstrap.group(boss, work)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new MessageDecoder(serialization))
-                                    .addLast(new MessageEncoder(serialization))
-                                    .addLast(heartBeatHandler);
+                            ch.pipeline().addLast(new ServerDecoder(serialization))
+                                    .addLast(new ServerEncoder(serialization))
+                                    .addLast(serverTransactionHandler);
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -64,7 +67,5 @@ public class NettyServer implements Server {
     @Override
     public void unRegister() throws InterruptedException {
         channelFuture.channel().closeFuture().sync();
-        work.shutdownGracefully();
-        boss.shutdownGracefully();
     }
 }

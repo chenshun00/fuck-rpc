@@ -9,7 +9,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 public class App {
     public static void main(String[] args) throws InterruptedException {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("abc.xml");
-        UserService userService = (UserService) applicationContext.getBean("userService");
-        System.out.println(userService.name());
+        Thread.sleep(100000000000L);
     }
 }

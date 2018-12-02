@@ -19,7 +19,10 @@ public class Provider implements Serializable, Cloneable {
     private Integer port;
     private String version;
     private Integer weight;
+    private String serialization;
 
+    public Provider() {
+    }
 
     @Override
     public Provider clone() throws CloneNotSupportedException {

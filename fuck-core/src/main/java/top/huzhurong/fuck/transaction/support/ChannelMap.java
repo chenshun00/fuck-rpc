@@ -1,6 +1,6 @@
 package top.huzhurong.fuck.transaction.support;
 
-import io.netty.channel.Channel;
+import io.netty.channel.socket.SocketChannel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,13 +10,13 @@ import java.util.Map;
  * @since 2018/12/1
  */
 public class ChannelMap {
-    private static Map<String, Channel> channelMap = new HashMap<>();
+    private static Map<String, SocketChannel> channelMap = new HashMap<>();
 
-    public static void put(String info, Channel channel) {
-        channelMap.put(info, channel);
+    public static void put(String info, SocketChannel socketChannel) {
+        channelMap.put(info, socketChannel);
     }
 
-    public static Channel get(String info) {
+    public static SocketChannel get(String info) {
         return channelMap.get(info);
     }
 

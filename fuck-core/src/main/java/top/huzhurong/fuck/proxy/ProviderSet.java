@@ -18,6 +18,7 @@ public class ProviderSet {
         List<Provider> providers = stringListMap.get(serviceName);
         if (providers == null) {
             providers = new ArrayList<>();
+            stringListMap.put(serviceName, providers);
         } else {
             providers.clear();
         }

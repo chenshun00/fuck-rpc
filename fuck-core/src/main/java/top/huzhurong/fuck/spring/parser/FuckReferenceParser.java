@@ -35,6 +35,12 @@ public class FuckReferenceParser extends AbstractSingleBeanDefinitionParser {
             String version = element.getAttribute("version");
             builder.addPropertyValue("version", version);
             String timeout = element.getAttribute("timeout");
+
+            String loadBalance = element.getAttribute("loadBalance");
+            if (StringUtils.hasText(loadBalance)) {
+                builder.addPropertyValue("loadBalance", loadBalance);
+            }
+
             if (StringUtils.hasText(timeout)) {
                 builder.addPropertyValue("timeout", NumberUtils.parseNumber(timeout, Integer.class));
             }

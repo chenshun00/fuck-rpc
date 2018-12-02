@@ -39,4 +39,9 @@ public class JavaSerialize implements ISerialization {
             throw new IllegalStateException("Failed to deserialize object type", ex);
         }
     }
+
+    @Override
+    public String toString() {
+        return "jdk";
+    }
 }

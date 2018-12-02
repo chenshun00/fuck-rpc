@@ -8,5 +8,5 @@ public interface Client {
 
     void connect(String host, Integer port);
 
-    void disConnect();
+    void disConnect() throws InterruptedException;
 }

@@ -1,4 +1,4 @@
-package top.huzhurong.fuck.transaction.netty;
+package top.huzhurong.fuck.transaction.netty.request;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
@@ -11,6 +11,10 @@ import lombok.Getter;
 import lombok.Setter;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Client;
+import top.huzhurong.fuck.transaction.netty.ClientTransactionHandler;
+import top.huzhurong.fuck.transaction.netty.serilize.MessageDecoder;
+import top.huzhurong.fuck.transaction.netty.serilize.MessageEncoder;
+import top.huzhurong.fuck.transaction.support.Provider;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -19,6 +23,16 @@ import top.huzhurong.fuck.transaction.Client;
 public class NettyClient implements Client {
 
     private NioEventLoopGroup work;
+    private ChannelFuture channelFuture;
+
+    public NettyClient(Provider provider, ISerialization serialization) {
+        this.provider = provider;
+        this.serialization = serialization;
+    }
+
+    @Getter
+    @Setter
+    private Provider provider;
 
     @Getter
     @Setter
@@ -37,19 +51,19 @@ public class NettyClient implements Client {
                             ch.pipeline()
                                     .addLast(new MessageDecoder(serialization))
                                     .addLast(new MessageEncoder(serialization))
-                                    .addLast(new HeartBeatHandler());
+                                    .addLast(new ClientTransactionHandler(provider));
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);
-            ChannelFuture sync = bootstrap.connect(host, port).sync();
-            sync.channel().closeFuture().sync();
+            channelFuture = bootstrap.connect(host, port).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void disConnect() {
+    public void disConnect() throws InterruptedException {
+        channelFuture.channel().closeFuture().sync();
         if (work != null) {
             work.shutdownGracefully();
         }

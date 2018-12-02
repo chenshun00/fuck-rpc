@@ -1,5 +1,6 @@
 package top.huzhurong.fuck.register;
 
+import top.huzhurong.fuck.transaction.support.Consumer;
 import top.huzhurong.fuck.transaction.support.Provider;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface IRegister {
 
     List<Provider> discover(String serviceName, String version);
 
+    default void registerConsumer(Consumer consumer) {
+
+    }
 }

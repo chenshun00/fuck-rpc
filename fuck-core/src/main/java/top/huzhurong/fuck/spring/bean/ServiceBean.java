@@ -10,9 +10,10 @@ import org.springframework.context.ApplicationContextAware;
 import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
+import top.huzhurong.fuck.serialization.SerializationFactory;
 import top.huzhurong.fuck.serialization.protobuff.ProtoBuffSerilize;
 import top.huzhurong.fuck.transaction.Server;
-import top.huzhurong.fuck.transaction.netty.NettyServer;
+import top.huzhurong.fuck.transaction.netty.request.NettyServer;
 import top.huzhurong.fuck.transaction.support.Provider;
 import top.huzhurong.fuck.util.NetUtils;
 
@@ -34,7 +35,7 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
     private String version;
     private Integer weight;
     private IRegister register;
-    private ISerialization serialization;
+    private String serialization;
     private Object impl;
 
 
@@ -53,11 +54,10 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
         if (this.protocolPort == null) {
             this.protocolPort = this.applicationContext.getBean(ProtocolPort.class);
         }
-        if (serialization == null) {
-            serialization = new ProtoBuffSerilize();
-        }
+        ISerialization serialization = SerializationFactory.resolve(this.serialization);
         List<Provider> providerList = new ArrayList<>(16);
         Provider provider = new Provider();
+        provider.setSerialization(serialization.toString());
         provider.setServiceName(interfaceName);
         provider.setHost(NetUtils.getLocalHost());
         provider.setPort(this.protocolPort.getPort());
