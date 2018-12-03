@@ -140,15 +140,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             request.setArgs(args);
             request.setMethodName(method.getName());
             request.setParameters(method.getParameterTypes());
-            ChannelFuture channelFuture = channel.writeAndFlush(request);
-            channelFuture.addListener((GenericFutureListener<? extends Future<? super Void>>) future -> {
-                boolean success = future.isSuccess();
-                if (!success) {
-                    Throwable cause = future.cause();
-                    cause.printStackTrace();
-                    System.out.println("gg");
-                }
-            });
+//            ChannelFuture channelFuture = channel.writeAndFlush(request);
             return "111mm";
         }
     }

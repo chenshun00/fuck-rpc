@@ -7,7 +7,7 @@
 
     <fuck:protocol port="12345"/>
     <fuck:address address="127.0.0.1:2181"/>
-    <fuck:service id="uu" interface="top.huzhurong.fuck.UserService" version="0.0.1" ref="userService" weight="2"/>
+    <fuck:service id="uu" interface="top.huzhurong.fuck.UserService" version="0.0.1" ref="userService" weight="2" serialization="jdk"/>
 
     <!--<bean id="userService" class="top.huzhurong.fuck.ProxyBean">-->
         <!--<property name="name" value="top.huzhurong.fuck.UserService"/>-->

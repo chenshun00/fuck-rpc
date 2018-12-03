@@ -1,6 +1,5 @@
 package top.huzhurong.fuck.transaction.netty;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -8,7 +7,6 @@ import io.netty.channel.socket.SocketChannel;
 import org.springframework.util.Assert;
 import top.huzhurong.fuck.transaction.support.ChannelMap;
 import top.huzhurong.fuck.transaction.support.Provider;
-import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
 import java.io.Serializable;
@@ -46,8 +44,7 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Assert.notNull(this.provider, "服务提供者不能为空");
-        //放置到一个Map里边，这个Map负载监控channel
-        System.out.println("here");
+        System.out.println("链接起来");
         String info = this.provider.getHost() + ":" + this.provider.getServiceName() + ":" + this.provider.getVersion();
         ChannelMap.put(info, (SocketChannel) ctx.channel());
     }

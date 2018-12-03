@@ -70,7 +70,7 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
         providerList.add(provider);
         //服务注册
         register.registerService(providerList);
-        Server server = new NettyServer(serialization);
+        Server server = new NettyServer(serialization,this.applicationContext);
         server.bind(this.protocolPort.getPort());
     }
 

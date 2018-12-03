@@ -105,9 +105,15 @@
                 </xsd:annotation>
             </xsd:attribute>
 
-            <xsd:attribute name="weight" type="xsd:integer" use="optional">
+            <xsd:attribute name="weight" type="xsd:integer">
                 <xsd:annotation>
                     <xsd:documentation><![CDATA[ 服务权重. ]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
+
+            <xsd:attribute name="serialization" type="xsd:string">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[ 序列化. ]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
         </xsd:complexType>
