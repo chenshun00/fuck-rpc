@@ -131,7 +131,7 @@ public class ZkRegister implements IRegister {
     public Provider toProvider(String child) {
         assert child != null;
         String[] info = child.split(ZkRegister.split);
-        assert info.length == 5;
+        assert info.length == 6;
         Provider provider = new Provider();
         provider.setHost(info[0]);
         provider.setPort(Integer.valueOf(info[1]));

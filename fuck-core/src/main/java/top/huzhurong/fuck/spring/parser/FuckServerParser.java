@@ -42,6 +42,10 @@ public class FuckServerParser extends AbstractSingleBeanDefinitionParser {
             if (StringUtils.hasText(weight)) {
                 builder.addPropertyValue("weight", NumberUtils.parseNumber(weight, Integer.class));
             }
+            String serialization = element.getAttribute("serialization");
+            if (StringUtils.hasText(serialization)) {
+                builder.addPropertyValue("serialization", serialization);
+            }
         } catch (Exception ex) {
             log.error("解析服务出错," + ex.getMessage(), ex);
             throw new RuntimeException(ex);

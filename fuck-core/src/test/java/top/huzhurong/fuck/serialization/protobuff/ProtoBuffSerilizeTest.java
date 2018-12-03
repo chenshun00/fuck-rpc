@@ -5,6 +5,7 @@ import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.serialization.SerializationFactory;
 import top.huzhurong.fuck.transaction.support.Request;
 
+import java.lang.reflect.Method;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -19,7 +20,9 @@ public class ProtoBuffSerilizeTest {
     public void serialize() throws NoSuchMethodException {
         ISerialization resolve = SerializationFactory.resolve("jdk");
         Request request = new Request();
-        request.setMethod(ProtoBuffSerilizeTest.class.getDeclaredMethod("serialize"));
+        Method serialize1 = ProtoBuffSerilizeTest.class.getDeclaredMethod("serialize");
+        request.setMethodName(serialize1.getName());
+        request.setParameters(serialize1.getParameterTypes());
         request.setArgs(null);
         request.setServiceName("abc.abc");
         request.setRequestId(UUID.randomUUID().toString());

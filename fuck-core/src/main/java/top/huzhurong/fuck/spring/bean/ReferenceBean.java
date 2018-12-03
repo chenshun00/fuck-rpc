@@ -1,6 +1,5 @@
 package top.huzhurong.fuck.spring.bean;
 
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.Future;
@@ -32,7 +31,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -48,7 +46,6 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
     private Integer timeout = 10000;
     private Object object;
     private String loadBalance;
-    private String serialization;
 
     private ApplicationContext applicationContext;
 
@@ -110,7 +107,6 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             this.className = referenceBean.getInterfaceName();
             this.version = referenceBean.getVersion();
             loadBalance = LoadBalanceFactory.resolve(referenceBean.getLoadBalance());
-            serialization = SerializationFactory.resolve(referenceBean.getSerialization());
         }
 
         @Override
@@ -120,6 +116,9 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                 throw new RuntimeException("服务端列表[" + this.className + "--" + this.version + "]为空");
             }
             Provider provider = loadBalance.getProvider(all);
+            {
+                serialization = SerializationFactory.resolve(provider.getSerialization());
+            }
             String host = provider.getHost();
             String serviceName = provider.getServiceName();
             String version = provider.getVersion();
@@ -139,7 +138,8 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             request.setRequestId(UUID.randomUUID().toString());
             request.setServiceName(provider.getServiceName());
             request.setArgs(args);
-            request.setMethod(method);
+            request.setMethodName(method.getName());
+            request.setParameters(method.getParameterTypes());
             ChannelFuture channelFuture = channel.writeAndFlush(request);
             channelFuture.addListener((GenericFutureListener<? extends Future<? super Void>>) future -> {
                 boolean success = future.isSuccess();

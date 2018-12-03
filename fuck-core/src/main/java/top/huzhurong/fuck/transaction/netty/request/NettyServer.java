@@ -52,7 +52,8 @@ public class NettyServer implements Server {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new ServerDecoder(serialization))
+                            ch.pipeline()
+                                    .addLast(new ServerDecoder(serialization))
                                     .addLast(new ServerEncoder(serialization))
                                     .addLast(serverTransactionHandler);
                         }

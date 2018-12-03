@@ -6,6 +6,7 @@ import lombok.ToString;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -17,6 +18,7 @@ import java.lang.reflect.Method;
 public class Request implements Serializable {
     private String requestId;
     private String serviceName;
-    private Method method;
+    private String methodName;
+    private Class<?>[] parameters;
     private Object[] args;
 }

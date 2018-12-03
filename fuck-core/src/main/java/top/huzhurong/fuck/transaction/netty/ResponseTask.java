@@ -6,6 +6,7 @@ import top.huzhurong.fuck.transaction.support.Response;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Objects;
 
 /**
@@ -25,19 +26,21 @@ public class ResponseTask implements Runnable {
     @Override
     public void run() {
         String serviceName = request.getServiceName();
-        Method method = request.getMethod();
+        String methodName = request.getMethodName();
+        Class<?>[] parameters = request.getParameters();
         Object[] args = request.getArgs();
         Response response = new Response();
         response.setRequestId(request.getRequestId());
         response.setSuccess(false);
         try {
             Object obj = Class.forName(serviceName).newInstance();
+            Method method = obj.getClass().getDeclaredMethod(methodName, parameters);
             Object invoke = method.invoke(obj, args);
             response.setSuccess(true);
             response.setObject(invoke);
         } catch (ClassNotFoundException | IllegalAccessException e) {
             response.setException(e);
-        } catch (InstantiationException e) {
+        } catch (InstantiationException | NoSuchMethodException e) {
             e.printStackTrace();
             response.setException(e);
         } catch (InvocationTargetException e) {
