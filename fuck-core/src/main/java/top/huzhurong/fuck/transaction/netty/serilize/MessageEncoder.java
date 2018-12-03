@@ -37,7 +37,6 @@ public class MessageEncoder extends MessageToByteEncoder {
         //下边这一行是强制写入并且刷新，如果这么写，在某些版本会抛出引用异常，因为每一次writeAndFlush
         //之后都会减少一次引用，而netty最后会自动帮我们减少一次引用
 
-        System.out.println("传输消息出去");
         ctx.writeAndFlush(byteBuf);
     }
 }

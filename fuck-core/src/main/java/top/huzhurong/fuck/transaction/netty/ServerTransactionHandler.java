@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 @ChannelHandler.Sharable
 public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
 
-    private ExecutorService responseTask = Executors.newFixedThreadPool(1);
+    private ExecutorService responseTask = Executors.newFixedThreadPool(1,Executors.defaultThreadFactory());
 
     private ApplicationContext applicationContext;
 

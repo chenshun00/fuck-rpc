@@ -1,9 +1,6 @@
 package top.huzhurong.fuck.spring.bean;
 
-import io.netty.channel.ChannelFuture;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +17,7 @@ import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.serialization.SerializationFactory;
 import top.huzhurong.fuck.transaction.Client;
 import top.huzhurong.fuck.transaction.netty.request.NettyClient;
-import top.huzhurong.fuck.transaction.support.ChannelMap;
-import top.huzhurong.fuck.transaction.support.Consumer;
-import top.huzhurong.fuck.transaction.support.Provider;
-import top.huzhurong.fuck.transaction.support.Request;
+import top.huzhurong.fuck.transaction.support.*;
 import top.huzhurong.fuck.util.NetUtils;
 
 import java.lang.reflect.InvocationHandler;
@@ -31,6 +25,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -43,12 +40,11 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
     private String id;
     private String interfaceName;
     private String version;
-    private Integer timeout = 10000;
+    private Integer timeout = 10;
     private Object object;
     private String loadBalance;
 
     private ApplicationContext applicationContext;
-
 
     @Override
     public Object getObject() {
@@ -101,11 +97,13 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         private String version;
         private LoadBalance loadBalance;
         private ISerialization serialization;
+        private Integer timeout;
 
-        public FuckRpcInvocationHandler(ReferenceBean referenceBean) {
+        FuckRpcInvocationHandler(ReferenceBean referenceBean) {
             Assert.notNull(referenceBean, "referenceBean 不能为空");
             this.className = referenceBean.getInterfaceName();
             this.version = referenceBean.getVersion();
+            this.timeout = referenceBean.getTimeout();
             loadBalance = LoadBalanceFactory.resolve(referenceBean.getLoadBalance());
         }
 
@@ -125,23 +123,48 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             String info = host + ":" + serviceName + ":" + version;
             SocketChannel channel = ChannelMap.get(info);
             if (channel == null) {
-                //链接客户端
                 Client client = new NettyClient(provider, this.serialization);
                 client.connect(host, provider.getPort());
-                Thread.sleep(300L);
+                Thread.sleep(200L);
             }
             if (channel == null) {
                 channel = ChannelMap.get(info);
             }
-            Assert.notNull(channel, "通道不能为空");
-            Request request = new Request();
-            request.setRequestId(UUID.randomUUID().toString());
-            request.setServiceName(provider.getServiceName());
-            request.setArgs(args);
-            request.setMethodName(method.getName());
-            request.setParameters(method.getParameterTypes());
-//            ChannelFuture channelFuture = channel.writeAndFlush(request);
-            return "111mm";
+
+            SocketChannel finalChannel = channel;
+            Future<Response> submit = TempResultSet.executorService.submit(() -> {
+                Assert.notNull(finalChannel, "通道不能为空");
+                Request request = new Request();
+                request.setRequestId(UUID.randomUUID().toString());
+                request.setServiceName(provider.getServiceName());
+                request.setArgs(args);
+                request.setMethodName(method.getName());
+                request.setParameters(method.getParameterTypes());
+                finalChannel.writeAndFlush(request);
+                for (; ; ) {
+                    Response response = TempResultSet.get(request.getRequestId());
+                    if (response != null) {
+                        return response;
+                    }
+                }
+            });
+
+            try {
+                Response response = submit.get(this.timeout, TimeUnit.SECONDS);
+                if (response == null) {
+                    throw new RuntimeException("好像出现了未知的异常");
+                }
+                if (response.getSuccess()) {
+                    return response.getObject();
+                }
+                Throwable exception = response.getException();
+                if (exception != null) {
+                    throw new RuntimeException(exception);
+                }
+                return null;
+            } catch (TimeoutException ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }

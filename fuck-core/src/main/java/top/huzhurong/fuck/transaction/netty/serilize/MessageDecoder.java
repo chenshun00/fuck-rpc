@@ -44,8 +44,6 @@ public class MessageDecoder extends ByteToMessageDecoder {
         byteBuf.readBytes(dataArray);
         Response response = serialization.deSerialize(dataArray, Response.class);
 
-        System.out.println("客户端解压消息:"+response);
-
         list.add(response);
     }
 }

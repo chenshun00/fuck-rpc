@@ -8,10 +8,9 @@ import org.springframework.util.Assert;
 import top.huzhurong.fuck.transaction.support.ChannelMap;
 import top.huzhurong.fuck.transaction.support.Provider;
 import top.huzhurong.fuck.transaction.support.Response;
+import top.huzhurong.fuck.transaction.support.TempResultSet;
 
 import java.io.Serializable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -19,8 +18,6 @@ import java.util.concurrent.Executors;
  */
 @ChannelHandler.Sharable
 public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
-
-    private ExecutorService requestTask = Executors.newFixedThreadPool(5);
 
     private Provider provider;
 
@@ -30,21 +27,20 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        System.out.println("发生什么");
+
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Serializable serializable) throws Exception {
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, Serializable serializable) {
         if (serializable instanceof Response) {
             Response response = (Response) serializable;
-            requestTask.submit(new RequestTask(response));
+            TempResultSet.put(response.getRequestId(), response);
         }
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Assert.notNull(this.provider, "服务提供者不能为空");
-        System.out.println("链接起来");
         String info = this.provider.getHost() + ":" + this.provider.getServiceName() + ":" + this.provider.getVersion();
         ChannelMap.put(info, (SocketChannel) ctx.channel());
     }

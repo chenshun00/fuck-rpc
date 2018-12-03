@@ -76,5 +76,11 @@ public class NettyServer implements Server {
     @Override
     public void unRegister() throws InterruptedException {
         channelFuture.channel().closeFuture().sync();
+        if (boss != null) {
+            boss.shutdownGracefully();
+        }
+        if (work != null) {
+            work.shutdownGracefully();
+        }
     }
 }
