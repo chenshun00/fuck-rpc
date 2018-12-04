@@ -115,7 +115,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             }
             Provider provider = loadBalance.getProvider(all);
             {
-                serialization = SerializationFactory.resolve(provider.getSerialization(),this.className);
+                serialization = SerializationFactory.resolve(provider.getSerialization(), this.className);
             }
             String host = provider.getHost();
             String serviceName = provider.getServiceName();
@@ -125,10 +125,10 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             if (channel == null) {
                 Client client = new NettyClient(provider, this.serialization);
                 client.connect(host, provider.getPort());
-                Thread.sleep(200L);
+                channel = ChannelMap.get(info);
             }
             if (channel == null) {
-                channel = ChannelMap.get(info);
+                throw new RuntimeException("获取远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
             }
 
             SocketChannel finalChannel = channel;
@@ -141,6 +141,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                 request.setMethodName(method.getName());
                 request.setParameters(method.getParameterTypes());
                 finalChannel.writeAndFlush(request);
+                //这里可以改造成 CountDownLatch,可以比 ;; 循环要好
                 for (; ; ) {
                     Response response = TempResultSet.get(request.getRequestId());
                     if (response != null) {
@@ -148,7 +149,6 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                     }
                 }
             });
-
             try {
                 Response response = submit.get(this.timeout, TimeUnit.SECONDS);
                 if (response == null) {

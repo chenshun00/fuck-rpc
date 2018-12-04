@@ -44,7 +44,7 @@ public class NettyClient implements Client {
     public void connect(String host, Integer port) {
         Bootstrap bootstrap = new Bootstrap();
         try {
-            work = new NioEventLoopGroup(1,TempResultSet.defaultThreadFactory());
+            work = new NioEventLoopGroup(1, TempResultSet.defaultThreadFactory());
             bootstrap.group(work)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {
@@ -58,6 +58,7 @@ public class NettyClient implements Client {
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);
+            //等到channel激活的时候，ClientTransactionHandler#channelActive已经执行了
             channelFuture = bootstrap.connect(host, port).sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
