@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import top.huzhurong.fuck.transaction.support.Request;
+import top.huzhurong.fuck.transaction.support.TempResultSet;
 
 import java.io.Serializable;
 import java.util.concurrent.ExecutorService;
@@ -19,7 +20,7 @@ import java.util.concurrent.Executors;
 @ChannelHandler.Sharable
 public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
 
-    private ExecutorService responseTask = Executors.newFixedThreadPool(1,Executors.defaultThreadFactory());
+    private ExecutorService responseTask = Executors.newFixedThreadPool(1, TempResultSet.defaultThreadFactory());
 
     private ApplicationContext applicationContext;
 

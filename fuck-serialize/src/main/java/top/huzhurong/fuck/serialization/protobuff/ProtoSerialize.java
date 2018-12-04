@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author luobo.cs@raycloud.com
  * @since 2018/11/29
  */
-public class ProtoBuffSerilize implements ISerialization {
+public class ProtoSerialize implements ISerialization {
 
     private static Map<Class<?>, Schema<?>> cachedSchema = new ConcurrentHashMap<>();
 

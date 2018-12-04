@@ -16,6 +16,7 @@ import top.huzhurong.fuck.transaction.netty.ClientTransactionHandler;
 import top.huzhurong.fuck.transaction.netty.serilize.MessageDecoder;
 import top.huzhurong.fuck.transaction.netty.serilize.MessageEncoder;
 import top.huzhurong.fuck.transaction.support.Provider;
+import top.huzhurong.fuck.transaction.support.TempResultSet;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -43,7 +44,7 @@ public class NettyClient implements Client {
     public void connect(String host, Integer port) {
         Bootstrap bootstrap = new Bootstrap();
         try {
-            work = new NioEventLoopGroup();
+            work = new NioEventLoopGroup(1,TempResultSet.defaultThreadFactory());
             bootstrap.group(work)
                     .channel(NioSocketChannel.class)
                     .handler(new ChannelInitializer<SocketChannel>() {

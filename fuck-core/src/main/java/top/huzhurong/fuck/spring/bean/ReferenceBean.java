@@ -115,7 +115,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             }
             Provider provider = loadBalance.getProvider(all);
             {
-                serialization = SerializationFactory.resolve(provider.getSerialization());
+                serialization = SerializationFactory.resolve(provider.getSerialization(),this.className);
             }
             String host = provider.getHost();
             String serviceName = provider.getServiceName();

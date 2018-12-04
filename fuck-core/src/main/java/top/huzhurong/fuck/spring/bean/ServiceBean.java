@@ -1,7 +1,5 @@
 package top.huzhurong.fuck.spring.bean;
 
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
@@ -11,7 +9,6 @@ import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.serialization.SerializationFactory;
-import top.huzhurong.fuck.serialization.protobuff.ProtoBuffSerilize;
 import top.huzhurong.fuck.transaction.Server;
 import top.huzhurong.fuck.transaction.netty.request.NettyServer;
 import top.huzhurong.fuck.transaction.support.Provider;
@@ -26,8 +23,6 @@ import java.util.List;
  * @author luobo.cs@raycloud.com
  * @since 2018/12/1
  */
-@Getter
-@Setter
 public class ServiceBean implements FactoryBean<Object>, InitializingBean, ApplicationContextAware {
 
     private String id;
@@ -54,7 +49,7 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
         if (this.protocolPort == null) {
             this.protocolPort = this.applicationContext.getBean(ProtocolPort.class);
         }
-        ISerialization serialization = SerializationFactory.resolve(this.serialization);
+        ISerialization serialization = SerializationFactory.resolve(this.serialization,this.interfaceName);
         List<Provider> providerList = new ArrayList<>(16);
         Provider provider = new Provider();
         provider.setSerialization(serialization.toString());
@@ -70,7 +65,7 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
         providerList.add(provider);
         //服务注册
         register.registerService(providerList);
-        Server server = new NettyServer(serialization,this.applicationContext);
+        Server server = new NettyServer(serialization, this.applicationContext);
         server.bind(this.protocolPort.getPort());
     }
 
@@ -88,5 +83,73 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getInterfaceName() {
+        return interfaceName;
+    }
+
+    public void setInterfaceName(String interfaceName) {
+        this.interfaceName = interfaceName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public Integer getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Integer weight) {
+        this.weight = weight;
+    }
+
+    public IRegister getRegister() {
+        return register;
+    }
+
+    public void setRegister(IRegister register) {
+        this.register = register;
+    }
+
+    public String getSerialization() {
+        return serialization;
+    }
+
+    public void setSerialization(String serialization) {
+        this.serialization = serialization;
+    }
+
+    public Object getImpl() {
+        return impl;
+    }
+
+    public void setImpl(Object impl) {
+        this.impl = impl;
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public ProtocolPort getProtocolPort() {
+        return protocolPort;
+    }
+
+    public void setProtocolPort(ProtocolPort protocolPort) {
+        this.protocolPort = protocolPort;
     }
 }

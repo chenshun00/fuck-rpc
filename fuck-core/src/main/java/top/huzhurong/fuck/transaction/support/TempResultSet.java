@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 /**
  * 根据引用的服务信息从zk上找到provider列表，然后建立tcp长链接
@@ -16,7 +17,11 @@ import java.util.concurrent.Executors;
  */
 public class TempResultSet {
 
-    public static ExecutorService executorService = Executors.newFixedThreadPool(1,Executors.defaultThreadFactory());
+    public static ThreadFactory defaultThreadFactory() {
+        return new FuckThreadFactory();
+    }
+
+    public static ExecutorService executorService = Executors.newFixedThreadPool(1, defaultThreadFactory());
 
     private static Map<String, Response> serverMap = new ConcurrentHashMap<>(32);
 

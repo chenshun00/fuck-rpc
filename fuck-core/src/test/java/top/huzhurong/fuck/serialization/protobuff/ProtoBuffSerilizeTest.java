@@ -18,7 +18,7 @@ public class ProtoBuffSerilizeTest {
 
     @Test
     public void serialize() throws NoSuchMethodException {
-        ISerialization resolve = SerializationFactory.resolve("jdk");
+        ISerialization resolve = SerializationFactory.resolve("jdk","info");
         Request request = new Request();
         Method serialize1 = ProtoBuffSerilizeTest.class.getDeclaredMethod("serialize");
         request.setMethodName(serialize1.getName());

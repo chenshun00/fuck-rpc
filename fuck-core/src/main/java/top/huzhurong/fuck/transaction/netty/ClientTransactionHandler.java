@@ -27,7 +27,8 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-
+        String info = this.provider.getHost() + ":" + this.provider.getServiceName() + ":" + this.provider.getVersion();
+        ChannelMap.remove(info);
     }
 
     @Override

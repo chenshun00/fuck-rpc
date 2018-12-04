@@ -3,10 +3,9 @@ package top.huzhurong.fuck.transaction.netty.serilize;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 import top.huzhurong.fuck.serialization.ISerialization;
-import top.huzhurong.fuck.serialization.protobuff.ProtoBuffSerilize;
 import top.huzhurong.fuck.transaction.support.Request;
-import top.huzhurong.fuck.transaction.support.Response;
 
 import java.util.List;
 
@@ -14,6 +13,7 @@ import java.util.List;
  * @author luobo.cs@raycloud.com
  * @since 2018/12/2
  */
+@Slf4j
 public class ServerDecoder extends ByteToMessageDecoder {
     private static final int HEAD_LENGTH = 4;//最小数据包头长度
 
@@ -40,8 +40,10 @@ public class ServerDecoder extends ByteToMessageDecoder {
 
         byte[] dataArray = new byte[dataLength];
         byteBuf.readBytes(dataArray);
-        Request response = serialization.deSerialize(dataArray, Request.class);
-        System.out.println("MessageEncoder");
-        list.add(response);
+        Request request = serialization.deSerialize(dataArray, Request.class);
+        if (log.isDebugEnabled()) {
+            log.debug("接受到消费者请求:{},请求内容:{}", ctx.channel().toString(), request);
+        }
+        list.add(request);
     }
 }

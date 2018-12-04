@@ -22,5 +22,6 @@ public class ConsumerDemo {
         System.out.println(bean.name());
         System.out.println(bean.name());
         System.out.println(bean.name());
+        System.out.println(Thread.currentThread().getName());
     }
 }

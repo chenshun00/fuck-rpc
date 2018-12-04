@@ -20,4 +20,7 @@ public class ChannelMap {
         return channelMap.get(info);
     }
 
+    public static void remove(String info) {
+        channelMap.remove(info);
+    }
 }
