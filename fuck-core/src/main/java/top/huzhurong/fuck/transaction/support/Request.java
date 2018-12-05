@@ -22,6 +22,7 @@ public class Request implements Serializable {
     private String methodName;
     private Class<?>[] parameters;
     private Object[] args;
+    private String serialization;
 
     public static Request buildRequest(Provider provider, Method method, Object[] args) {
         Request request = new Request();
@@ -30,6 +31,7 @@ public class Request implements Serializable {
         request.setArgs(args);
         request.setMethodName(method.getName());
         request.setParameters(method.getParameterTypes());
+        request.setSerialization(provider.getSerialization());
         return request;
     }
 }

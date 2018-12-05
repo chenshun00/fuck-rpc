@@ -27,9 +27,5 @@ public class FuckFilterManager {
     public List<FuckFilter> getFuckFilters() {
         return fuckFilters;
     }
-    
-    public Object next() {
-        if ()
-    }
 
 }

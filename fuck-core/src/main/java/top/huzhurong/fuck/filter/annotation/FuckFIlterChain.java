@@ -15,11 +15,12 @@ public class FuckFIlterChain {
      * @param message the message will be handle(any param include Object)
      */
     public Object doNext(String message) {
-        if (index == filterList.size() - 1) {
-            return invoker.toString();
-        } else {
-            return filterList.get(++index).filter(null, null, this);
+        if (index < filterList.size() - 1) {
+            filterList.get(++index).filter(null, null, this);
         }
+
+        return invoker.toString();
+
     }
 
     public FuckFIlterChain(List<FuckFilter> filterList, Object invoker) {
