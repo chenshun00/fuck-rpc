@@ -114,9 +114,9 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                 throw new RuntimeException("服务端列表[" + this.className + "--" + this.version + "]为空");
             }
             Provider provider = loadBalance.getProvider(all);
-            {
-                serialization = SerializationFactory.resolve(provider.getSerialization(), this.className);
-            }
+            Request request = Request.buildRequest(provider, method, args);
+            serialization = SerializationFactory.resolve(provider.getSerialization(), this.className);
+
             String host = provider.getHost();
             String serviceName = provider.getServiceName();
             String version = provider.getVersion();
@@ -134,12 +134,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             SocketChannel finalChannel = channel;
             Future<Response> submit = TempResultSet.executorService.submit(() -> {
                 Assert.notNull(finalChannel, "通道不能为空");
-                Request request = new Request();
-                request.setRequestId(UUID.randomUUID().toString());
-                request.setServiceName(provider.getServiceName());
-                request.setArgs(args);
-                request.setMethodName(method.getName());
-                request.setParameters(method.getParameterTypes());
+                //过滤的应该是插入这里才好吧
                 finalChannel.writeAndFlush(request);
                 //这里可以改造成 CountDownLatch,可以比 ;; 循环要好
                 for (; ; ) {
@@ -149,6 +144,12 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                     }
                 }
             });
+
+            //1、获取filter器，组装形成FilterChain , 传入invoker
+
+            //2、最后invoker调用netty传输，然后获取返回结果
+
+
             try {
                 Response response = submit.get(this.timeout, TimeUnit.SECONDS);
                 if (response == null) {

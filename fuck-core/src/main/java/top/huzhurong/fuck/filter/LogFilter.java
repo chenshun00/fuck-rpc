@@ -8,8 +8,9 @@ import top.huzhurong.fuck.transaction.support.Response;
  * @author luobo.cs@raycloud.com
  * @since 2018/12/4
  */
-public interface FuckFilter {
-
-    boolean filter(Request request, Response response, FuckFIlterChain fuckFIlterChain);
-
+public class LogFilter implements FuckFilter {
+    @Override
+    public boolean filter(Request request, Response response, FuckFIlterChain fuckFIlterChain) {
+        return false;
+    }
 }

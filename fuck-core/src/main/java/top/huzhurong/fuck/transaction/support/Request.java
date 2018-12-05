@@ -7,6 +7,7 @@ import lombok.ToString;
 import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.UUID;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -21,4 +22,14 @@ public class Request implements Serializable {
     private String methodName;
     private Class<?>[] parameters;
     private Object[] args;
+
+    public static Request buildRequest(Provider provider, Method method, Object[] args) {
+        Request request = new Request();
+        request.setRequestId(UUID.randomUUID().toString());
+        request.setServiceName(provider.getServiceName());
+        request.setArgs(args);
+        request.setMethodName(method.getName());
+        request.setParameters(method.getParameterTypes());
+        return request;
+    }
 }

@@ -19,12 +19,17 @@ public class FuckFilterManager {
         }
     }
 
-    public static List<FuckFilter> getFuckFilters() {
-        return fuckFilters;
+    private FuckFilterManager() {
     }
 
-    public static void main(String[] args) {
-        List<FuckFilter> fuckFilters = getFuckFilters();
-        System.out.println(fuckFilters);
+    public final static FuckFilterManager instance = new FuckFilterManager();
+
+    public List<FuckFilter> getFuckFilters() {
+        return fuckFilters;
     }
+    
+    public Object next() {
+        if ()
+    }
+
 }
