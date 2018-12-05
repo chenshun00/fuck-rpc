@@ -69,6 +69,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         if (discover == null || discover.size() == 0) {
             throw new RuntimeException("服务端列表[" + this.interfaceName + "--" + this.version + "]为空");
         }
+        zkRegister.subscribe(this.interfaceName);
         ProviderSet.put(this.interfaceName, discover);
         Object object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Class.forName(this.interfaceName)}
                 , new FuckRpcInvocationHandler(this));
@@ -116,15 +117,11 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             Provider provider = loadBalance.getProvider(all);
             Request request = Request.buildRequest(provider, method, args);
             serialization = SerializationFactory.resolve(provider.getSerialization(), this.className);
-
-            String host = provider.getHost();
-            String serviceName = provider.getServiceName();
-            String version = provider.getVersion();
-            String info = host + ":" + serviceName + ":" + version;
+            String info = provider.buildIfno();
             SocketChannel channel = ChannelMap.get(info);
             if (channel == null) {
                 Client client = new NettyClient(provider, this.serialization);
-                client.connect(host, provider.getPort());
+                client.connect(provider.getHost(), provider.getPort());
                 channel = ChannelMap.get(info);
             }
             if (channel == null) {

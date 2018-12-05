@@ -6,9 +6,11 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import org.springframework.util.NumberUtils;
+import top.huzhurong.fuck.proxy.ProviderSet;
 import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.transaction.support.Consumer;
 import top.huzhurong.fuck.transaction.support.Provider;
+import top.huzhurong.fuck.util.NetUtils;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
@@ -26,9 +28,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ZkRegister implements IRegister {
 
-    public final static String root_path = "/fuck";
-    public final static String root_provider = "/provider";
-    public final static String root_consumer = "/consumer";
+    final static String root_path = "/fuck";
+    final static String root_provider = "/provider";
+    private final static String root_consumer = "/consumer";
+    private final static String line = "/";
     private final static String split = "#A#";
 
     private final static Integer default_session_timeout = 1000;
@@ -56,25 +59,6 @@ public class ZkRegister implements IRegister {
         zkClient = new ZkClient(host, sessionOut, connectionOut);
         if (!zkClient.exists(root_path)) {
             zkClient.createPersistent(root_path, "fuck-rpc root path".getBytes(Charset.forName("utf-8")));
-        }
-    }
-
-    @Override
-    public void registerConsumer(Consumer consumer) {
-        Assert.notNull(consumer, "消费者信息不能为空");
-        String host = consumer.getHost();
-        String version = consumer.getVersion();
-        Integer timeout = consumer.getTimeout();
-        String consumerPath = root_path + "/" + consumer.getServiceName() + root_consumer;
-        if (!zkClient.exists(consumerPath)) {
-            zkClient.createPersistent(consumerPath, true);
-        }
-        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-        Integer integer = Integer.valueOf(runtimeMXBean.getName().split("@")[0]);
-        String finalInfo = host + split + consumer.getServiceName() + split + version + split + timeout + split + integer;
-        String path = consumerPath + "/" + finalInfo;
-        if (!zkClient.exists(path)) {
-            zkClient.createEphemeral(path);
         }
     }
 
@@ -128,7 +112,45 @@ public class ZkRegister implements IRegister {
         return result;
     }
 
-    public Provider toProvider(String child) {
+    @Override
+    public void registerConsumer(Consumer consumer) {
+        Assert.notNull(consumer, "消费者信息不能为空");
+        String host = consumer.getHost();
+        String version = consumer.getVersion();
+        Integer timeout = consumer.getTimeout();
+        String consumerPath = root_path + "/" + consumer.getServiceName() + root_consumer;
+        if (!zkClient.exists(consumerPath)) {
+            zkClient.createPersistent(consumerPath, true);
+        }
+        RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+        Integer integer = Integer.valueOf(runtimeMXBean.getName().split("@")[0]);
+        String finalInfo = host + split + consumer.getServiceName() + split + version + split + timeout + split + integer;
+        String path = consumerPath + "/" + finalInfo;
+        if (!zkClient.exists(path)) {
+            zkClient.createEphemeral(path);
+        }
+    }
+
+    @Override
+    public void subscribe(String service) {
+        Assert.notNull(this.zkClient, "zkClient不能为空");
+        String finalPath = root_path + line + service  + root_provider;
+        this.zkClient.subscribeChildChanges(finalPath, (parent, children) -> {
+            if (log.isDebugEnabled()) {
+                log.debug("notify {} about subscribe server:{},provider list:{}", NetUtils.getLocalHost(), service, children);
+            }
+            children.forEach(System.out::println);
+            List<Provider> all = ProviderSet.getAll(service);
+            List<Provider> collect = children.stream().map(this::toProvider).collect(Collectors.toList());
+            if (all.equals(collect)) {
+                log.debug("提供者没有变更");
+            } else {
+                ProviderSet.reset(service, collect);
+            }
+        });
+    }
+
+    private Provider toProvider(String child) {
         assert child != null;
         String[] info = child.split(ZkRegister.split);
         assert info.length == 6;

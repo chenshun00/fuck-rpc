@@ -3,6 +3,7 @@ package top.huzhurong.fuck.transaction.netty;
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.ClassUtils;
+import top.huzhurong.fuck.transaction.netty.cache.ServiceCache;
 import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
@@ -36,10 +37,14 @@ public class ResponseTask implements Runnable {
         response.setRequestId(request.getRequestId());
         response.setSuccess(false);
         try {
-            Class<?> aClass = ClassUtils.forName(serviceName, null);
-            Object obj = applicationContext.getBean(aClass);
-            Method method = obj.getClass().getDeclaredMethod(methodName, parameters);
-            Object invoke = method.invoke(obj, args);
+            Object service = ServiceCache.getService(serviceName);
+            if (service == null) {
+                Class<?> aClass = ClassUtils.forName(serviceName, ClassUtils.getDefaultClassLoader());
+                service = applicationContext.getBean(aClass);
+                ServiceCache.put(serviceName, service);
+            }
+            Method method = service.getClass().getDeclaredMethod(methodName, parameters);
+            Object invoke = method.invoke(service, args);
             System.out.println("invoke:" + invoke);
             response.setSuccess(true);
             response.setObject(invoke);

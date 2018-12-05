@@ -4,6 +4,7 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
 import top.huzhurong.fuck.transaction.support.ChannelMap;
 import top.huzhurong.fuck.transaction.support.Provider;
@@ -13,11 +14,10 @@ import top.huzhurong.fuck.transaction.support.TempResultSet;
 import java.io.Serializable;
 
 /**
- *
- *
  * @author luobo.cs@raycloud.com
  * @since 2018/11/30
  */
+@Slf4j
 @ChannelHandler.Sharable
 public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
 
@@ -29,7 +29,10 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        String info = this.provider.getHost() + ":" + this.provider.getServiceName() + ":" + this.provider.getVersion();
+        String info = this.provider.buildIfno();
+        if (log.isErrorEnabled()) {
+            log.warn("连接断开:{}", this.provider);
+        }
         ChannelMap.remove(info);
     }
 
@@ -44,7 +47,10 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Assert.notNull(this.provider, "服务提供者不能为空");
-        String info = this.provider.getHost() + ":" + this.provider.getServiceName() + ":" + this.provider.getVersion();
+        String info = this.provider.buildIfno();
+        if (log.isInfoEnabled()) {
+            log.info("服务成功连接到:{}", this.provider);
+        }
         ChannelMap.put(info, (SocketChannel) ctx.channel());
     }
 

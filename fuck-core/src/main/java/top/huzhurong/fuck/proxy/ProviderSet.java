@@ -1,5 +1,6 @@
 package top.huzhurong.fuck.proxy;
 
+import org.springframework.util.Assert;
 import top.huzhurong.fuck.transaction.support.Provider;
 
 import java.util.*;
@@ -31,5 +32,12 @@ public class ProviderSet {
             throw new RuntimeException("provider 列表为空");
         }
         return providers;
+    }
+
+    public static void reset(String service, List<Provider> collect) {
+        Assert.notNull(service, "服务不能为空");
+        Assert.notEmpty(collect, "provider列表不能为空");
+        stringListMap.remove(service);
+        put(service, collect);
     }
 }
