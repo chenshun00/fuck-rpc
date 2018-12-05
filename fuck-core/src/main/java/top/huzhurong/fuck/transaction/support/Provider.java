@@ -29,6 +29,9 @@ public class Provider implements Serializable, Cloneable {
         return (Provider) super.clone();
     }
 
+    public String buildIfno() {
+        return getHost() + ":" + getPort() + ":" + getServiceName() + ":" + getVersion();
+    }
 
     @Override
     public boolean equals(Object o) {

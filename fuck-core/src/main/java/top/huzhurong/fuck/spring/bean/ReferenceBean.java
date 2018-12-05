@@ -118,14 +118,11 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             {
                 serialization = SerializationFactory.resolve(provider.getSerialization(), this.className);
             }
-            String host = provider.getHost();
-            String serviceName = provider.getServiceName();
-            String version = provider.getVersion();
-            String info = host + ":" + serviceName + ":" + version;
+            String info = provider.buildIfno();
             SocketChannel channel = ChannelMap.get(info);
             if (channel == null) {
                 Client client = new NettyClient(provider, this.serialization);
-                client.connect(host, provider.getPort());
+                client.connect(provider.getHost(), provider.getPort());
                 channel = ChannelMap.get(info);
             }
             if (channel == null) {
