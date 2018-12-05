@@ -6,6 +6,7 @@ import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.transaction.support.Provider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,7 +48,21 @@ public class ZkRegisterTest {
 
     @Test
     public void registerService() throws InterruptedException {
-        register.registerService(providers);
+        register.subscribe("top.huzhurong.fuck.UserService");
+        Thread.sleep(100000000000L);
+    }
+
+    @Test
+    public void re() throws InterruptedException {
+        Provider provider = new Provider();
+        provider.setHost("227.2.22.100");
+        provider.setPort(43276);
+        provider.setServiceName("top.huzhurong.fuck.UserService");
+        provider.setVersion("0.0.1");
+        provider.setWeight(11);
+        provider.setSerialization("jdk");
+        Thread.sleep(5000);
+        register.registerService(Collections.singletonList(provider));
         Thread.sleep(100000000000L);
     }
 

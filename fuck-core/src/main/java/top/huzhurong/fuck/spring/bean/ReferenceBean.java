@@ -69,6 +69,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         if (discover == null || discover.size() == 0) {
             throw new RuntimeException("服务端列表[" + this.interfaceName + "--" + this.version + "]为空");
         }
+        zkRegister.subscribe(this.interfaceName);
         ProviderSet.put(this.interfaceName, discover);
         Object object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{Class.forName(this.interfaceName)}
                 , new FuckRpcInvocationHandler(this));

@@ -18,4 +18,8 @@ public interface IRegister {
     default void registerConsumer(Consumer consumer) {
 
     }
+
+    default void subscribe(String service) {
+
+    }
 }
