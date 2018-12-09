@@ -33,7 +33,7 @@ public class ResponseTask implements Runnable {
     @Override
     public void run() {
         Assert.notNull(this.request, "request 不能为空");
-        List<FuckFilter> fuckFilters = FuckFilterManager.instance.getFuckFilters();
+        List<FuckFilter> fuckFilters = FuckFilterManager.instance.getProviderFilter();
         FuckFilterChain chain = new FuckFilterChain(fuckFilters, new ServerInvoker(this.request, this.applicationContext));
         Response response = new Response();
         response.setRequestId(this.request.getRequestId());

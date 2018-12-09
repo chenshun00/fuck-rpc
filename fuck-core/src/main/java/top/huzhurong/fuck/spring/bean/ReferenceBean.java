@@ -111,7 +111,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             }
             Provider provider = loadBalance.getProvider(all);
             Request request = Request.buildRequest(provider, method, args, timeout);
-            List<FuckFilter> fuckFilters = FuckFilterManager.instance.getFuckFilters();
+            List<FuckFilter> fuckFilters = FuckFilterManager.instance.getConsumerFilter();
             FuckFilterChain fuckFilterChain = new FuckFilterChain(fuckFilters, new ClientInvoker(request));
             return fuckFilterChain.doNext(request, null);
         }
