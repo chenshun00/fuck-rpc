@@ -1,6 +1,5 @@
 package top.huzhurong.fuck.spring.bean;
 
-import io.netty.channel.socket.SocketChannel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -13,13 +12,9 @@ import org.springframework.util.Assert;
 import top.huzhurong.fuck.balance.LoadBalance;
 import top.huzhurong.fuck.filter.FuckFilter;
 import top.huzhurong.fuck.filter.FuckFilterManager;
-import top.huzhurong.fuck.filter.annotation.FuckFIlterChain;
+import top.huzhurong.fuck.filter.annotation.FuckFilterChain;
 import top.huzhurong.fuck.proxy.ProviderSet;
 import top.huzhurong.fuck.register.zk.ZkRegister;
-import top.huzhurong.fuck.serialization.ISerialization;
-import top.huzhurong.fuck.serialization.SerializationFactory;
-import top.huzhurong.fuck.transaction.Client;
-import top.huzhurong.fuck.transaction.netty.request.NettyClient;
 import top.huzhurong.fuck.transaction.support.*;
 import top.huzhurong.fuck.util.NetUtils;
 
@@ -27,10 +22,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -100,7 +91,6 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         private String className;
         private String version;
         private LoadBalance loadBalance;
-        private ISerialization serialization;
         private Integer timeout;
 
         FuckRpcInvocationHandler(ReferenceBean referenceBean) {
@@ -118,63 +108,14 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                 throw new RuntimeException("服务端列表[" + this.className + "--" + this.version + "]为空");
             }
             Provider provider = loadBalance.getProvider(all);
-            Request request = Request.buildRequest(provider, method, args);
-
-            serialization = SerializationFactory.resolve(provider.getSerialization(), this.className);
-            String info = provider.buildIfno();
-
+            Request request = Request.buildRequest(provider, method, args, timeout);
 
             List<FuckFilter> fuckFilters = FuckFilterManager.instance.getFuckFilters();
 
-            FuckFIlterChain fuckFIlterChain = new FuckFIlterChain(fuckFilters, null);
-
-            return fuckFIlterChain.doNext(null);
-//
-//            SocketChannel channel = ChannelMap.get(info);
-//            if (channel == null) {
-//                Client client = new NettyClient(provider, this.serialization);
-//                client.connect(provider.getHost(), provider.getPort());
-//                channel = ChannelMap.get(info);
-//            }
-//            if (channel == null) {
-//                throw new RuntimeException("获取远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
-//            }
-//
-//            SocketChannel finalChannel = channel;
-//            Future<Response> submit = TempResultSet.executorService.submit(() -> {
-//                Assert.notNull(finalChannel, "通道不能为空");
-//                //过滤的应该是插入这里才好吧
-//                finalChannel.writeAndFlush(request);
-//                //这里可以改造成 CountDownLatch,可以比 ;; 循环要好
-//                for (; ; ) {
-//                    Response response = TempResultSet.get(request.getRequestId());
-//                    if (response != null) {
-//                        return response;
-//                    }
-//                }
-//            });
-//
-//            //1、获取filter器，组装形成FilterChain , 传入invoker
-//
-//            //2、最后invoker调用netty传输，然后获取返回结果
-//
-//
-//            try {
-//                Response response = submit.get(this.timeout, TimeUnit.SECONDS);
-//                if (response == null) {
-//                    throw new RuntimeException("好像出现了未知的异常");
-//                }
-//                if (response.getSuccess()) {
-//                    return response.getObject();
-//                }
-//                Throwable exception = response.getException();
-//                if (exception != null) {
-//                    throw new RuntimeException(exception);
-//                }
-//                return null;
-//            } catch (TimeoutException ex) {
-//                throw new RuntimeException(ex);
-//            }
+            FuckFilterChain fuckFilterChain = new FuckFilterChain(fuckFilters, new Invoker(request));
+            Response response = new Response();
+            response.setRequestId(request.getRequestId());
+            return fuckFilterChain.doNext(request, response);
         }
     }
 }

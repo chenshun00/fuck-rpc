@@ -1,6 +1,6 @@
 package top.huzhurong.fuck.filter;
 
-import top.huzhurong.fuck.filter.annotation.FuckFIlterChain;
+import top.huzhurong.fuck.filter.annotation.FuckFilterChain;
 import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
@@ -10,6 +10,6 @@ import top.huzhurong.fuck.transaction.support.Response;
  */
 public interface FuckFilter {
 
-    boolean filter(Request request, Response response, FuckFIlterChain fuckFIlterChain);
+    Object filter(Request request, Response response, FuckFilterChain fuckFilterChain);
 
 }

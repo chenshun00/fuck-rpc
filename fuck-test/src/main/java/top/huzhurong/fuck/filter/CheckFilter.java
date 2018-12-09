@@ -5,13 +5,13 @@ import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
 /**
- * @author luobo.cs@raycloud.com
- * @since 2018/12/4
+ * @author chenshun00@gmail.com
+ * @since 2018/12/9
  */
-public class LogFilter implements FuckFilter {
+public class CheckFilter implements FuckFilter {
     @Override
     public Object filter(Request request, Response response, FuckFilterChain fuckFilterChain) {
-        System.out.println("logFilter----" + request);
+        System.out.println("check");
         return fuckFilterChain.doNext(request, response);
     }
 }

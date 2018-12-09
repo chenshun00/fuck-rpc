@@ -22,8 +22,5 @@ public class ConsumerDemo {
         System.out.println(bean.name());
         System.out.println(bean.name());
         System.out.println(bean.name());
-
-
-        Thread.sleep(100000000000L);
     }
 }

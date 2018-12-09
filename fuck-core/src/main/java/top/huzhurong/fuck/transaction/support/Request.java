@@ -22,9 +22,11 @@ public class Request implements Serializable {
     private String methodName;
     private Class<?>[] parameters;
     private Object[] args;
-    private String serialization;
+    transient private String serialization;
+    transient private Provider provider;
+    transient Integer timeout;
 
-    public static Request buildRequest(Provider provider, Method method, Object[] args) {
+    public static Request buildRequest(Provider provider, Method method, Object[] args,Integer timeout) {
         Request request = new Request();
         request.setRequestId(UUID.randomUUID().toString());
         request.setServiceName(provider.getServiceName());
@@ -32,6 +34,8 @@ public class Request implements Serializable {
         request.setMethodName(method.getName());
         request.setParameters(method.getParameterTypes());
         request.setSerialization(provider.getSerialization());
+        request.setProvider(provider);
+        request.setTimeout(timeout);
         return request;
     }
 }
