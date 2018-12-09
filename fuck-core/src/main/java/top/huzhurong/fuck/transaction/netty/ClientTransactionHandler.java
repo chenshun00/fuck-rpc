@@ -1,6 +1,6 @@
 package top.huzhurong.fuck.transaction.netty;
 
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
@@ -18,7 +18,7 @@ import java.io.Serializable;
  * @since 2018/11/30
  */
 @Slf4j
-@ChannelHandler.Sharable
+@Sharable
 public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
 
     private Provider provider;

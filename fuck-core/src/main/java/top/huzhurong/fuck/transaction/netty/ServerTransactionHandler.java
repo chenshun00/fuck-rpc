@@ -1,11 +1,10 @@
 package top.huzhurong.fuck.transaction.netty;
 
-import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.stereotype.Component;
 import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.TempResultSet;
 
@@ -17,7 +16,8 @@ import java.util.concurrent.Executors;
  * @author luobo.cs@raycloud.com
  * @since 2018/12/2
  */
-@ChannelHandler.Sharable
+@Sharable
+@Slf4j
 public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
 
     private ExecutorService responseTask = Executors.newFixedThreadPool(1, TempResultSet.defaultThreadFactory());
@@ -30,12 +30,16 @@ public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serial
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        System.out.println("channelActive:" + ctx.channel().toString());
+        if (log.isInfoEnabled()) {
+            log.info("channel active :{}", ctx.channel());
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        System.out.println("channelInactive:" + ctx.channel().toString());
+        if (log.isWarnEnabled()) {
+            log.warn("channel inactive :{}", ctx.channel());
+        }
     }
 
     @Override

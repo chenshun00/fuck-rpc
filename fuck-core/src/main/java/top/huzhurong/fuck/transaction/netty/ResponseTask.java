@@ -2,13 +2,16 @@ package top.huzhurong.fuck.transaction.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import org.springframework.context.ApplicationContext;
-import org.springframework.util.ClassUtils;
-import top.huzhurong.fuck.transaction.netty.cache.ServiceCache;
+import org.springframework.util.Assert;
+import top.huzhurong.fuck.filter.FuckFilter;
+import top.huzhurong.fuck.filter.FuckFilterManager;
+import top.huzhurong.fuck.filter.annotation.FuckFilterChain;
+import top.huzhurong.fuck.transaction.invoker.Invoker;
+import top.huzhurong.fuck.transaction.invoker.ServerInvoker;
 import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,33 +32,17 @@ public class ResponseTask implements Runnable {
 
     @Override
     public void run() {
-        String serviceName = request.getServiceName();
-        String methodName = request.getMethodName();
-        Class<?>[] parameters = request.getParameters();
-        Object[] args = request.getArgs();
+        Assert.notNull(this.request, "request 不能为空");
+        List<FuckFilter> fuckFilters = FuckFilterManager.instance.getFuckFilters();
+        FuckFilterChain chain = new FuckFilterChain(fuckFilters, new ServerInvoker(this.request, this.applicationContext));
         Response response = new Response();
-        response.setRequestId(request.getRequestId());
-        response.setSuccess(false);
-        try {
-            Object service = ServiceCache.getService(serviceName);
-            if (service == null) {
-                Class<?> aClass = ClassUtils.forName(serviceName, ClassUtils.getDefaultClassLoader());
-                service = applicationContext.getBean(aClass);
-                ServiceCache.put(serviceName, service);
-            }
-            Method method = service.getClass().getDeclaredMethod(methodName, parameters);
-            Object invoke = method.invoke(service, args);
-            System.out.println("invoke:" + invoke);
-            response.setSuccess(true);
-            response.setObject(invoke);
-        } catch (ClassNotFoundException | IllegalAccessException e) {
-            response.setException(e);
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-            response.setException(e);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            response.setException(e.getTargetException());
+        response.setRequestId(this.request.getRequestId());
+        response.setSuccess(true);
+        Object object = chain.doNext(this.request, response);
+        response.setObject(object);
+        if (object instanceof Throwable) {
+            response.setObject(null);
+            response.setException((Throwable) object);
         }
         channelHandlerContext.writeAndFlush(response);
     }

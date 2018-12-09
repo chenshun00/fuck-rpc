@@ -139,7 +139,6 @@ public class ZkRegister implements IRegister {
             if (log.isDebugEnabled()) {
                 log.debug("notify {} about subscribe server:{},provider list:{}", NetUtils.getLocalHost(), service, children);
             }
-            children.forEach(System.out::println);
             List<Provider> all = ProviderSet.getAll(service);
             List<Provider> collect = children.stream().map(this::toProvider).collect(Collectors.toList());
             if (all.equals(collect)) {

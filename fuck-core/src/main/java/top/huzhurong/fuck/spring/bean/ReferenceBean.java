@@ -15,6 +15,8 @@ import top.huzhurong.fuck.filter.FuckFilterManager;
 import top.huzhurong.fuck.filter.annotation.FuckFilterChain;
 import top.huzhurong.fuck.proxy.ProviderSet;
 import top.huzhurong.fuck.register.zk.ZkRegister;
+import top.huzhurong.fuck.transaction.invoker.ClientInvoker;
+import top.huzhurong.fuck.transaction.invoker.Invoker;
 import top.huzhurong.fuck.transaction.support.*;
 import top.huzhurong.fuck.util.NetUtils;
 
@@ -109,13 +111,9 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
             }
             Provider provider = loadBalance.getProvider(all);
             Request request = Request.buildRequest(provider, method, args, timeout);
-
             List<FuckFilter> fuckFilters = FuckFilterManager.instance.getFuckFilters();
-
-            FuckFilterChain fuckFilterChain = new FuckFilterChain(fuckFilters, new Invoker(request));
-            Response response = new Response();
-            response.setRequestId(request.getRequestId());
-            return fuckFilterChain.doNext(request, response);
+            FuckFilterChain fuckFilterChain = new FuckFilterChain(fuckFilters, new ClientInvoker(request));
+            return fuckFilterChain.doNext(request, null);
         }
     }
 }

@@ -1,10 +1,11 @@
-package top.huzhurong.fuck.transaction.support;
+package top.huzhurong.fuck.transaction.invoker;
 
 import io.netty.channel.socket.SocketChannel;
 import org.springframework.util.Assert;
 import top.huzhurong.fuck.serialization.SerializationFactory;
 import top.huzhurong.fuck.transaction.Client;
 import top.huzhurong.fuck.transaction.netty.request.NettyClient;
+import top.huzhurong.fuck.transaction.support.*;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -15,12 +16,18 @@ import java.util.concurrent.TimeoutException;
  * @author chenshun00@gmail.com
  * @since 2018/12/9
  */
-public class Invoker {
-    private Request request;
+public class ClientInvoker extends Invoker {
 
+    public ClientInvoker(Request request) {
+        super(request);
+    }
+
+    @Override
     public Object invoke() {
-        Assert.notNull(this.request, "request 不能为空!");
-        String info = this.request.getProvider().buildIfno();
+        Request request = getRequest();
+        Assert.notNull(request, "request 不能为空!");
+
+        String info = request.getProvider().buildIfno();
         SocketChannel channel = ChannelMap.get(info);
         Provider provider = request.getProvider();
         if (channel == null) {
@@ -49,7 +56,8 @@ public class Invoker {
         try {
             Response response = submit.get(request.getTimeout(), TimeUnit.SECONDS);
             if (response == null) {
-                throw new RuntimeException("好像出现了未知的异常");
+                //这里应该是超时了
+                throw new RuntimeException("unknown exception");
             }
             if (response.getSuccess()) {
                 return response.getObject();
@@ -58,22 +66,9 @@ public class Invoker {
             if (exception != null) {
                 throw new RuntimeException(exception);
             }
-            return null;
+            throw new RuntimeException("unknown exception");
         } catch (TimeoutException | InterruptedException | ExecutionException ex) {
             throw new RuntimeException(ex);
         }
-    }
-
-
-    public Invoker(Request request) {
-        this.request = request;
-    }
-
-    public Request getRequest() {
-        return request;
-    }
-
-    public void setRequest(Request request) {
-        this.request = request;
     }
 }
