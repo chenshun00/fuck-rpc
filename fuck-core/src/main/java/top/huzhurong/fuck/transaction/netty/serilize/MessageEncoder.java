@@ -40,6 +40,7 @@ public class MessageEncoder extends MessageToByteEncoder {
         if (log.isInfoEnabled()) {
             log.info("客户端执行rpc请求:{}", request);
         }
-        ctx.writeAndFlush(byteBuf);
+        //write之后又一个减cnf的操作
+        //ctx.writeAndFlush(byteBuf);
     }
 }
