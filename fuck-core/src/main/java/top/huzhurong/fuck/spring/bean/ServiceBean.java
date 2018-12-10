@@ -23,7 +23,7 @@ import java.util.List;
  * @author luobo.cs@raycloud.com
  * @since 2018/12/1
  */
-public class ServiceBean implements FactoryBean<Object>, InitializingBean, ApplicationContextAware {
+public class ServiceBean implements InitializingBean, ApplicationContextAware {
 
     private String id;
     private String interfaceName;
@@ -69,16 +69,6 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
         server.bind(this.protocolPort.getPort());
     }
 
-
-    @Override
-    public Object getObject() {
-        return this.impl;
-    }
-
-    @Override
-    public Class<?> getObjectType() {
-        return this.impl.getClass();
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
