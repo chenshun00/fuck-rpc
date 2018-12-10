@@ -1,5 +1,6 @@
 package top.huzhurong.fuck.transaction.invoker;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
@@ -13,6 +14,7 @@ import java.lang.reflect.Method;
  * @author chenshun00@gmail.com
  * @since 2018/12/9
  */
+@Slf4j
 public class ServerInvoker extends Invoker {
 
     private ApplicationContext applicationContext;
@@ -30,13 +32,16 @@ public class ServerInvoker extends Invoker {
                 service = applicationContext.getBean(aClass);
                 ServiceCache.put(serviceName, service);
             }
+            log.info("开始执行rpc方法{}:{}", serviceName, methodName);
             Method method = service.getClass().getDeclaredMethod(methodName, parameters);
-            return method.invoke(service, args);
+            Object invoke = method.invoke(service, args);
+            log.info("执行rpc方法{}:{} 结束,结果:{}", serviceName, methodName, invoke);
+            return invoke;
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException e) {
             return e;
         } catch (InvocationTargetException e) {
             return e.getTargetException();
-        }catch (Exception ex){
+        } catch (Exception ex) {
             return ex;
         }
     }
