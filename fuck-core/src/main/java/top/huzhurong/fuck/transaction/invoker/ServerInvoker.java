@@ -36,6 +36,8 @@ public class ServerInvoker extends Invoker {
             return e;
         } catch (InvocationTargetException e) {
             return e.getTargetException();
+        }catch (Exception ex){
+            return ex;
         }
     }
 

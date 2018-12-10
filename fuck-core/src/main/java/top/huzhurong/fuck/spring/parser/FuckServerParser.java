@@ -46,6 +46,14 @@ public class FuckServerParser extends AbstractSingleBeanDefinitionParser {
             if (StringUtils.hasText(serialization)) {
                 builder.addPropertyValue("serialization", serialization);
             }
+
+            String ref = element.getAttribute("ref");
+            if (StringUtils.hasText(ref)) {
+                builder.addPropertyReference("impl", ref.trim());
+            } else {
+                throw new RuntimeException(anInterface + "的服务实现为空!");
+            }
+
         } catch (Exception ex) {
             log.error("解析服务出错," + ex.getMessage(), ex);
             throw new RuntimeException(ex);

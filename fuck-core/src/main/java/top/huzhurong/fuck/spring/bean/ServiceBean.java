@@ -5,6 +5,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.ClassUtils;
 import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
@@ -49,7 +50,7 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
         if (this.protocolPort == null) {
             this.protocolPort = this.applicationContext.getBean(ProtocolPort.class);
         }
-        ISerialization serialization = SerializationFactory.resolve(this.serialization,this.interfaceName);
+        ISerialization serialization = SerializationFactory.resolve(this.serialization, this.interfaceName);
         List<Provider> providerList = new ArrayList<>(16);
         Provider provider = new Provider();
         provider.setSerialization(serialization.toString());
@@ -77,7 +78,12 @@ public class ServiceBean implements FactoryBean<Object>, InitializingBean, Appli
 
     @Override
     public Class<?> getObjectType() {
-        return this.impl.getClass();
+        try {
+            return ClassUtils.forName(interfaceName, Thread.currentThread().getContextClassLoader());
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        throw new RuntimeException("获取对象失败");
     }
 
     @Override
