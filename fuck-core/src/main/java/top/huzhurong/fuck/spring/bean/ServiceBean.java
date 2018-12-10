@@ -49,7 +49,7 @@ public class ServiceBean implements InitializingBean, ApplicationContextAware {
         if (this.protocolPort == null) {
             this.protocolPort = this.applicationContext.getBean(ProtocolPort.class);
         }
-        ISerialization serialization = SerializationFactory.resolve(this.serialization,this.interfaceName);
+        ISerialization serialization = SerializationFactory.resolve(this.serialization, this.interfaceName);
         List<Provider> providerList = new ArrayList<>(16);
         Provider provider = new Provider();
         provider.setSerialization(serialization.toString());

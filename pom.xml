@@ -15,6 +15,10 @@
         <module>fuck-test</module>
     </modules>
 
+    <properties>
+        <version-slf4j-apj>1.7.25</version-slf4j-apj>
+        <version-slf4j-log4j12>1.7.20</version-slf4j-log4j12>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -27,6 +31,22 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>1.18.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${version-slf4j-apj}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${version-slf4j-log4j12}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>
