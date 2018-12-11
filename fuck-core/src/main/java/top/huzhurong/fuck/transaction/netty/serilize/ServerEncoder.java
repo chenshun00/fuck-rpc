@@ -35,6 +35,5 @@ public class ServerEncoder extends MessageToByteEncoder {
             log.info("服务端返回请求消息:{}", response);
         }
         //可能出现bug，但是又不是很多确定
-        ctx.writeAndFlush(byteBuf);
     }
 }
