@@ -16,7 +16,7 @@ public class RandomAl implements LoadBalance {
     public Provider getProvider(List<Provider> providers) {
         check(providers);
         int size = providers.size();
-        Integer location = size(size - 1, 0);
+        Integer location = size( 0,size - 1);
         Provider provider = providers.get(location);
         if (provider == null) {
             provider = providers.get(0);

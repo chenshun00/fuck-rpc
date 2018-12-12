@@ -5,6 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.extern.slf4j.Slf4j;
 import top.huzhurong.fuck.serialization.ISerialization;
+import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  */
 @Slf4j
 public class MessageDecoder extends ByteToMessageDecoder {
-    private static final int HEAD_LENGTH = 4;//最小数据包头长度
+    private static final int HEAD_LENGTH = 8;//最小数据包头长度
 
     private ISerialization serialization;
 
@@ -25,12 +26,11 @@ public class MessageDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf byteBuf, List<Object> list) {
-
         if (byteBuf.readableBytes() <= HEAD_LENGTH) {
             return;
         }
         byteBuf.markReaderIndex();//标记位置
-
+        int type = byteBuf.readInt();
         int dataLength = byteBuf.readInt();
 
         if (byteBuf.readableBytes() < dataLength) {
@@ -40,10 +40,15 @@ public class MessageDecoder extends ByteToMessageDecoder {
 
         byte[] dataArray = new byte[dataLength];
         byteBuf.readBytes(dataArray);
-        Response response = serialization.deSerialize(dataArray, Response.class);
-        if (log.isDebugEnabled()) {
-            log.debug("客户端执行rpc请求结果返回:{}", response);
+        Object object;
+        if (type == 1) {
+            object = serialization.deSerialize(dataArray, Request.class);
+        } else {
+            object = serialization.deSerialize(dataArray, Response.class);
         }
-        list.add(response);
+        if (log.isDebugEnabled()) {
+            log.debug("执行rpc:{}", object);
+        }
+        list.add(object);
     }
 }

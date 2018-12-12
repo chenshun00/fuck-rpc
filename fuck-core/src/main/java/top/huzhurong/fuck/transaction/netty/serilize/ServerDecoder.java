@@ -10,10 +10,13 @@ import top.huzhurong.fuck.transaction.support.Request;
 import java.util.List;
 
 /**
+ * provider 和 consumer decoder 和 encoder 合并到一起
+ *
  * @author luobo.cs@raycloud.com
  * @since 2018/12/2
  */
 @Slf4j
+@Deprecated
 public class ServerDecoder extends ByteToMessageDecoder {
     private static final int HEAD_LENGTH = 4;//最小数据包头长度
 

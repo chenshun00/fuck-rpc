@@ -3,10 +3,10 @@ package top.huzhurong.fuck.transaction.netty.serilize;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
-import io.netty.util.ReferenceCountUtil;
 import lombok.extern.slf4j.Slf4j;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.support.Request;
+import top.huzhurong.fuck.transaction.support.Response;
 
 /**
  * client
@@ -28,17 +28,23 @@ public class MessageEncoder extends MessageToByteEncoder {
      */
     @Override
     protected void encode(ChannelHandlerContext ctx, Object obj, ByteBuf byteBuf) {
-
-        Request request = (Request) obj;
-        byte[] bytes = serialization.serialize(request);
-
+        byte[] bytes;
+        if (obj instanceof Request) {
+            Request request = (Request) obj;
+            bytes = serialization.serialize(request);
+            byteBuf.writeInt(1);
+        } else {
+            Response response = (Response) obj;
+            bytes = serialization.serialize(response);
+            byteBuf.writeInt(2);
+        }
         int dataLength = bytes.length;
         byteBuf.writeInt(dataLength);
         byteBuf.writeBytes(bytes);
         //下边这一行是强制写入并且刷新，如果这么写，在某些版本会抛出引用异常，因为每一次writeAndFlush
         //之后都会减少一次引用，而netty最后会自动帮我们减少一次引用
         if (log.isInfoEnabled()) {
-            log.info("客户端执行rpc请求:{}", request);
+            log.info("执行rpc:{}", obj);
         }
         //write之后又一个减cnf的操作
         //ctx.writeAndFlush(byteBuf);

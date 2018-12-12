@@ -24,7 +24,7 @@ public class WeightRandom implements LoadBalance {
                 providerList.add(provider.clone());
             }
         }
-        Integer size = size(providerList.size() - 1, 0);
+        Integer size = size(0, providerList.size() - 1);
         Provider provider = providerList.get(size);
         if (provider == null) {
             provider = providers.get(0);

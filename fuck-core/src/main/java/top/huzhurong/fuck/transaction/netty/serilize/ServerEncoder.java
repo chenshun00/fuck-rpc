@@ -8,10 +8,13 @@ import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.support.Response;
 
 /**
+ * provider 和 consumer decoder 和 encoder 合并到一起
+ *
  * @author luobo.cs@raycloud.com
  * @since 2018/12/2
  */
 @Slf4j
+@Deprecated
 public class ServerEncoder extends MessageToByteEncoder {
     private ISerialization serialization;
 

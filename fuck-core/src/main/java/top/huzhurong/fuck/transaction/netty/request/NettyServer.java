@@ -13,12 +13,9 @@ import lombok.Setter;
 import org.springframework.context.ApplicationContext;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Server;
-import top.huzhurong.fuck.transaction.netty.ClientTransactionHandler;
 import top.huzhurong.fuck.transaction.netty.ServerTransactionHandler;
 import top.huzhurong.fuck.transaction.netty.serilize.MessageDecoder;
 import top.huzhurong.fuck.transaction.netty.serilize.MessageEncoder;
-import top.huzhurong.fuck.transaction.netty.serilize.ServerDecoder;
-import top.huzhurong.fuck.transaction.netty.serilize.ServerEncoder;
 
 /**
  * netty 服务端
@@ -61,8 +58,8 @@ public class NettyServer implements Server {
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline()
                                     .addLast(new LoggingHandler())
-                                    .addLast(new ServerDecoder(serialization))
-                                    .addLast(new ServerEncoder(serialization))
+                                    .addLast(new MessageDecoder(serialization))
+                                    .addLast(new MessageEncoder(serialization))
                                     .addLast(serverTransactionHandler);
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)

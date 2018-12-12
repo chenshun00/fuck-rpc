@@ -3,7 +3,7 @@ package top.huzhurong.fuck.balance;
 import top.huzhurong.fuck.transaction.support.Provider;
 
 import java.util.List;
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * @author luobo.cs@raycloud.com
@@ -20,9 +20,8 @@ public interface LoadBalance {
     }
 
 
-    default Integer size(Integer max, Integer min) {
-        Random rand = new Random();
-        return rand.nextInt((max - min) + 1) + min;
+    default Integer size(Integer min, Integer max) {
+        return ThreadLocalRandom.current().nextInt(min, max);
     }
 
 }
