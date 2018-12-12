@@ -2,11 +2,14 @@ package top.huzhurong.fuck.transaction.invoker;
 
 import io.netty.channel.socket.SocketChannel;
 import org.springframework.util.Assert;
+import org.springframework.util.ReflectionUtils;
 import top.huzhurong.fuck.serialization.SerializationFactory;
 import top.huzhurong.fuck.transaction.Client;
 import top.huzhurong.fuck.transaction.netty.request.NettyClient;
 import top.huzhurong.fuck.transaction.support.*;
+import top.huzhurong.fuck.util.MethodUtils;
 
+import java.lang.reflect.Method;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -44,6 +47,9 @@ public class ClientInvoker extends Invoker {
             Assert.notNull(finalChannel, "通道不能为空");
             //过滤的应该是插入这里才好吧
             finalChannel.writeAndFlush(request);
+            if (MethodUtils.isVoid(request.getMethod())){
+                return null;
+            }
             //这里可以改造成 CountDownLatch,可以比 ;; 循环要好
             for (; ; ) {
                 Response response = TempResultSet.get(request.getRequestId());
@@ -52,6 +58,9 @@ public class ClientInvoker extends Invoker {
                 }
             }
         });
+        if (MethodUtils.isVoid(request.getMethod())){
+            return null;
+        }
 
         try {
             Response response = submit.get(request.getTimeout(), TimeUnit.SECONDS);

@@ -35,6 +35,7 @@ public class ServerInvoker extends Invoker {
             log.info("开始执行rpc方法{}:{}", serviceName, methodName);
             Method method = service.getClass().getDeclaredMethod(methodName, parameters);
             Object invoke = method.invoke(service, args);
+            request.setMethod(method);
             log.info("执行rpc方法{}:{} 结束,结果:{}", serviceName, methodName, invoke);
             return invoke;
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException e) {

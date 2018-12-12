@@ -25,6 +25,7 @@ public class Request implements Serializable {
     transient private String serialization;
     transient private Provider provider;
     transient Integer timeout;
+    transient Method method;
 
     public static Request buildRequest(Provider provider, Method method, Object[] args,Integer timeout) {
         Request request = new Request();
@@ -36,6 +37,7 @@ public class Request implements Serializable {
         request.setSerialization(provider.getSerialization());
         request.setProvider(provider);
         request.setTimeout(timeout);
+        request.setMethod(method);
         return request;
     }
 }

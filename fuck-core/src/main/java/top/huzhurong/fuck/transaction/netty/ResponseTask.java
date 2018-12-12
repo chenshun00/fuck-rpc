@@ -6,10 +6,10 @@ import org.springframework.util.Assert;
 import top.huzhurong.fuck.filter.FuckFilter;
 import top.huzhurong.fuck.filter.FuckFilterManager;
 import top.huzhurong.fuck.filter.annotation.FuckFilterChain;
-import top.huzhurong.fuck.transaction.invoker.Invoker;
 import top.huzhurong.fuck.transaction.invoker.ServerInvoker;
 import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
+import top.huzhurong.fuck.util.MethodUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -39,6 +39,9 @@ public class ResponseTask implements Runnable {
         response.setRequestId(this.request.getRequestId());
         response.setSuccess(true);
         Object object = chain.doNext(this.request, response);
+        if (MethodUtils.isVoid(this.request.getMethod())){
+            return;
+        }
         response.setObject(object);
         if (object instanceof Throwable) {
             response.setObject(null);

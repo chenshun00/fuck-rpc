@@ -6,4 +6,6 @@ package top.huzhurong.fuck;
  */
 public interface UserService {
     String name();
+
+    void noArg();
 }

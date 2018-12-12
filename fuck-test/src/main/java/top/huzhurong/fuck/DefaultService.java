@@ -10,4 +10,9 @@ public class DefaultService implements UserService {
     public String name() {
         return "111:+chen";
     }
+
+    @Override
+    public void noArg() {
+        System.out.println("return void");
+    }
 }

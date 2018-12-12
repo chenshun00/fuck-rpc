@@ -2,7 +2,6 @@ package top.huzhurong.fuck;
 
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.util.Assert;
 
 import java.lang.reflect.Proxy;
 
@@ -14,18 +13,22 @@ public class ProxyBean implements FactoryBean, InitializingBean {
 
     private Class name;
     private Object object;
+
     @Override
     public Object getObject() {
         return object;
     }
+
     @Override
     public Class<?> getObjectType() {
         return name;
     }
+
     @Override
     public void afterPropertiesSet() {
         this.build();
     }
+
     private void build() {
         this.object = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[]{this.name}, (proxy, method, args) -> {
             System.out.println(method.getName() + "\t" + method);
@@ -38,12 +41,15 @@ public class ProxyBean implements FactoryBean, InitializingBean {
             return "111";
         });
     }
+
     public Class getName() {
         return name;
     }
+
     public void setName(Class name) {
         this.name = name;
     }
+
     public void setObject(Object object) {
         this.object = object;
     }

@@ -28,4 +28,12 @@ public class ProtoBuffSerilizeTest {
         request.setRequestId(UUID.randomUUID().toString());
         byte[] serialize = resolve.serialize(request);
     }
+
+
+    @Test
+    public void testVoidMethod() throws NoSuchMethodException {
+        Method testVoidMethod = ProtoBuffSerilizeTest.class.getDeclaredMethod("testVoidMethod");
+        Class<?> returnType = testVoidMethod.getReturnType();
+        System.out.println(returnType.toString());
+    }
 }
