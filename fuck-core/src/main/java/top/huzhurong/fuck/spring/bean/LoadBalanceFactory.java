@@ -1,5 +1,6 @@
 package top.huzhurong.fuck.spring.bean;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import top.huzhurong.fuck.balance.*;
 
@@ -7,6 +8,7 @@ import top.huzhurong.fuck.balance.*;
  * @author luobo.cs@raycloud.com
  * @since 2018/12/2
  */
+@Slf4j
 public abstract class LoadBalanceFactory {
 
     private LoadBalanceFactory() {
@@ -34,7 +36,8 @@ public abstract class LoadBalanceFactory {
                 finalBalance = new WeightRoundRobin();
                 break;
             default:
-                throw new RuntimeException("未知的均衡方案");
+                log.warn("未知的负载算法:{}，使用轮训进行负载", loadBalance);
+                finalBalance = new RoundRobin();
         }
         return finalBalance;
     }

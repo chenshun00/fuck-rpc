@@ -29,7 +29,8 @@ public abstract class SerializationFactory {
                 serialization = new JavaSerialize();
                 break;
             default:
-                throw new RuntimeException("不合理的序列化方式");
+                log.warn("未知的序列化方式:{}，使用jdk作为默认序列化方式", name);
+                serialization = new JavaSerialize();
         }
         return serialization;
     }
