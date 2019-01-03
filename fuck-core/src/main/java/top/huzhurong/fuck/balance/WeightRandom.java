@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * 加权随机（Weight Random）法
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/24
  */
 public class WeightRandom implements LoadBalance {

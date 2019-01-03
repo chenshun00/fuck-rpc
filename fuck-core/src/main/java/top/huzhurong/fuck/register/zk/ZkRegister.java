@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  * 提供者启动的时候发布服务到zookeeper
  * 消费者启动的时候从zookeeper拉取服务提供者，并且订阅服务
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 @Slf4j

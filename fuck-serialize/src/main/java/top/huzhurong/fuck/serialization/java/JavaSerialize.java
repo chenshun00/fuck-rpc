@@ -5,7 +5,7 @@ import top.huzhurong.fuck.serialization.ISerialization;
 import java.io.*;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/29
  */
 public class JavaSerialize implements ISerialization {

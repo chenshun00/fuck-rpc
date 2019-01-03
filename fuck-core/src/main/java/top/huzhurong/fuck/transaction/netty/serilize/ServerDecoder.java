@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * provider 和 consumer decoder 和 encoder 合并到一起
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/2
  */
 @Slf4j

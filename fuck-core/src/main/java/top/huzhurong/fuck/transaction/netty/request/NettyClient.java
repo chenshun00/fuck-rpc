@@ -19,7 +19,7 @@ import top.huzhurong.fuck.transaction.support.Provider;
 import top.huzhurong.fuck.transaction.support.TempResultSet;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 public class NettyClient implements Client {

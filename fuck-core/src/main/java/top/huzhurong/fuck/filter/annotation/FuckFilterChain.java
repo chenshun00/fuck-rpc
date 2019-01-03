@@ -8,7 +8,7 @@ import top.huzhurong.fuck.transaction.support.Response;
 import java.util.List;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/5
  */
 public class FuckFilterChain {

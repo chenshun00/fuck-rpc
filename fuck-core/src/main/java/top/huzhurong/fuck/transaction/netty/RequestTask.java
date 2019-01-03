@@ -6,7 +6,7 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/30
  */
 public class RequestTask implements Callable<Object> {

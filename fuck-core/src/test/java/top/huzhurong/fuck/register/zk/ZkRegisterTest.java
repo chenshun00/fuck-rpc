@@ -1,5 +1,6 @@
 package top.huzhurong.fuck.register.zk;
 
+import com.github.zkclient.ZkClient;
 import org.junit.Before;
 import org.junit.Test;
 import top.huzhurong.fuck.register.IRegister;
@@ -8,9 +9,10 @@ import top.huzhurong.fuck.transaction.support.Provider;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 public class ZkRegisterTest {
@@ -79,5 +81,37 @@ public class ZkRegisterTest {
             });
         });
         Thread.sleep(100000000000L);
+    }
+
+    @Test
+    public void testCreatePath() throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ZkRegister zkRegister = (ZkRegister) this.register;
+        ZkClient zkClient = zkRegister.getZkClient();
+        for (int i = 0; i < 10; i++) {
+            Thread thread = new Thread(() -> {
+                try {
+                    countDownLatch.await();
+                    System.out.println(111);
+                    doo(zkClient);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            });
+            thread.setDaemon(false);
+            thread.start();
+        }
+        System.out.println(countDownLatch.getCount());
+//        Thread.sleep(2000L);
+//        countDownLatch.countDown();
+    }
+
+    public void doo(ZkClient zkClient) {
+        try {
+            zkClient.createEphemeral("/item_pub_chen_lock_me");
+            System.out.println("good");
+        } catch (Exception ex) {
+            System.out.println("GGG");
+        }
     }
 }

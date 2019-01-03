@@ -13,7 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/2
  */
 @Sharable
@@ -40,6 +40,11 @@ public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serial
         if (log.isWarnEnabled()) {
             log.warn("channel inactive :{}", ctx.channel());
         }
+    }
+
+    @Override
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        super.channelRegistered(ctx);
     }
 
     @Override

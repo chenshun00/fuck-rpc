@@ -12,7 +12,7 @@ import java.util.concurrent.ThreadFactory;
  * 我们是serviceName 去代表channel呢还是怎么去代表channel
  * 首先一个channel代表是一个服务的通道，所有我们需要找出所有的共同的service---host:port
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/30
  */
 public class TempResultSet {

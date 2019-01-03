@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 源地址哈希（Hash）法
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/24
  */
 public class SourceHash implements LoadBalance {

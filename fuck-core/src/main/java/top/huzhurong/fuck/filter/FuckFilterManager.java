@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/4
  */
 public class FuckFilterManager {

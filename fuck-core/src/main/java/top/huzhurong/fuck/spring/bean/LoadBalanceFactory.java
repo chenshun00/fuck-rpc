@@ -5,7 +5,7 @@ import org.springframework.util.StringUtils;
 import top.huzhurong.fuck.balance.*;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/2
  */
 @Slf4j

@@ -20,7 +20,7 @@ import top.huzhurong.fuck.transaction.netty.serilize.MessageEncoder;
 /**
  * netty 服务端
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/30
  */
 public class NettyServer implements Server {

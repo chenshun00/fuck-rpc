@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * 加权轮询（Weight Round Robin）法
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/24
  */
 public class WeightRoundRobin implements LoadBalance {

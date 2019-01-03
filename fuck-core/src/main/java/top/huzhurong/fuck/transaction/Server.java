@@ -1,7 +1,7 @@
 package top.huzhurong.fuck.transaction;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/30
  */
 public interface Server {

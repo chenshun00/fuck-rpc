@@ -20,7 +20,7 @@ import java.util.List;
 /**
  * 单个服务发布
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 public class ServiceBean implements InitializingBean, ApplicationContextAware {

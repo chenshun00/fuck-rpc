@@ -6,7 +6,7 @@ import top.huzhurong.fuck.transaction.support.Request;
 import top.huzhurong.fuck.transaction.support.Response;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/4
  */
 @Slf4j

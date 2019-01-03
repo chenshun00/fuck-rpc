@@ -11,7 +11,7 @@ import top.huzhurong.fuck.transaction.support.Response;
 /**
  * client
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/30
  */
 @Slf4j
@@ -20,6 +20,7 @@ public class MessageEncoder extends MessageToByteEncoder {
     private ISerialization serialization;
 
     public MessageEncoder(ISerialization serialization) {
+        super();
         this.serialization = serialization;
     }
 

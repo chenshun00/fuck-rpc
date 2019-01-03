@@ -11,7 +11,7 @@ import top.huzhurong.fuck.spring.parser.FuckReferenceParser;
 import top.huzhurong.fuck.spring.parser.FuckServerParser;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 public class FuckNamespaceHandler extends NamespaceHandlerSupport {

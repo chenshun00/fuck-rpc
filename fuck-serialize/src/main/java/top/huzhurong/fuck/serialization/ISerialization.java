@@ -1,7 +1,7 @@
 package top.huzhurong.fuck.serialization;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/29
  */
 public interface ISerialization {

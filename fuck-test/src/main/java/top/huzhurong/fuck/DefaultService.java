@@ -1,7 +1,7 @@
 package top.huzhurong.fuck;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 public class DefaultService implements UserService {

@@ -10,7 +10,7 @@ import top.huzhurong.fuck.transaction.support.Response;
 /**
  * provider 和 consumer decoder 和 encoder 合并到一起
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/2
  */
 @Slf4j
@@ -19,6 +19,7 @@ public class ServerEncoder extends MessageToByteEncoder {
     private ISerialization serialization;
 
     public ServerEncoder(ISerialization serialization) {
+        super();
         this.serialization = serialization;
     }
 

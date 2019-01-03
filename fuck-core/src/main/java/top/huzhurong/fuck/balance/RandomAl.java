@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * 随机（Random）法
  *
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/24
  */
 public class RandomAl implements LoadBalance {

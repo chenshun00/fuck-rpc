@@ -10,7 +10,7 @@ import java.lang.reflect.Parameter;
 import java.util.UUID;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/11/30
  */
 @Getter

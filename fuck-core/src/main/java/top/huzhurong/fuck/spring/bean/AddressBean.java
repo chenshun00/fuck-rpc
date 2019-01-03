@@ -5,7 +5,7 @@ import org.springframework.beans.factory.InitializingBean;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 
 /**
- * @author luobo.cs@raycloud.com
+ * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
 public class AddressBean implements FactoryBean<ZkRegister>, InitializingBean {
