@@ -6,6 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.channel.socket.SocketChannel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import top.huzhurong.fuck.transaction.netty.future.ResponseFuture;
 import top.huzhurong.fuck.transaction.support.ChannelMap;
 import top.huzhurong.fuck.transaction.support.Provider;
 import top.huzhurong.fuck.transaction.support.Response;
@@ -40,7 +41,10 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Serializable serializable) {
         if (serializable instanceof Response) {
             Response response = (Response) serializable;
-            TempResultSet.put(response.getRequestId(), response);
+            ResponseFuture responseFuture = TempResultSet.getResponseFuture(response.getRequestId());
+            if (responseFuture != null) {
+                responseFuture.putResponse(response);
+            }
         }
     }
 

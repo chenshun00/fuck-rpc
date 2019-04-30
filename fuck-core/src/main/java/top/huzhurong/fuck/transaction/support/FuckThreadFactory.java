@@ -12,4 +12,9 @@ public class FuckThreadFactory extends DefaultManagedAwareThreadFactory {
         this.setDaemon(true);
         this.setThreadNamePrefix("fuck-rpc-");
     }
+
+    public FuckThreadFactory(String name) {
+        this.setDaemon(true);
+        this.setThreadNamePrefix(name);
+    }
 }

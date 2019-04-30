@@ -9,21 +9,11 @@ import java.util.Map;
  * @since 2018/12/2
  */
 public class ConsumerDemo {
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("test.xml");
         UserService bean = applicationContext.getBean(UserService.class);
-//        long first = System.currentTimeMillis();
-//        System.out.println(bean.name());
-        System.out.println(bean.name());
-        Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
-        System.out.println(allStackTraces.size());
-//        System.out.println(bean.name());
-//        long second = System.currentTimeMillis();
-//        bean.noArg();
-//        bean.noArg();
-//        bean.noArg();
-//        long thrid = System.currentTimeMillis();
-//        System.out.println(second - first);
-//        System.out.println(thrid - second);
+        for (int i = 0; i < 2000; i++) {
+            System.out.println(bean.name());
+        }
     }
 }

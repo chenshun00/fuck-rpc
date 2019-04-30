@@ -46,9 +46,6 @@ public class MessageDecoder extends ByteToMessageDecoder {
         } else {
             object = serialization.deSerialize(dataArray, Response.class);
         }
-        if (log.isDebugEnabled()) {
-            log.debug("执行rpc:{}", object);
-        }
         list.add(object);
     }
 }

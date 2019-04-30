@@ -1,9 +1,7 @@
 package top.huzhurong.fuck.transaction.netty.request;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -17,6 +15,8 @@ import top.huzhurong.fuck.transaction.netty.serilize.MessageDecoder;
 import top.huzhurong.fuck.transaction.netty.serilize.MessageEncoder;
 import top.huzhurong.fuck.transaction.support.Provider;
 import top.huzhurong.fuck.transaction.support.TempResultSet;
+
+import java.net.SocketAddress;
 
 /**
  * @author chenshun00@gmail.com
@@ -41,7 +41,7 @@ public class NettyClient implements Client {
     private ISerialization serialization;
 
     @Override
-    public void connect(String host, Integer port) {
+    public ChannelFuture connect(String host, Integer port) {
         Bootstrap bootstrap = new Bootstrap();
         try {
             work = new NioEventLoopGroup(1, TempResultSet.defaultThreadFactory());
@@ -54,14 +54,29 @@ public class NettyClient implements Client {
                                     .addLast(new LoggingHandler())
                                     .addLast(new MessageDecoder(serialization))
                                     .addLast(new MessageEncoder(serialization))
+                                    .addLast(new NettyConnectManageHandler())
                                     .addLast(new ClientTransactionHandler(provider));
                         }
                     })
                     .option(ChannelOption.SO_KEEPALIVE, true);
             //等到channel激活的时候，ClientTransactionHandler#channelActive已经执行了
             channelFuture = bootstrap.connect(host, port).sync();
+            return channelFuture;
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 这里是出去的数据信息
+     */
+    class NettyConnectManageHandler extends ChannelDuplexHandler {
+        @Override
+        public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress,
+                            ChannelPromise promise) throws Exception {
+            super.connect(ctx, remoteAddress, localAddress, promise);
+            System.out.println("localAddress:" + localAddress + "\tremoteAddress:" + remoteAddress);
         }
     }
 

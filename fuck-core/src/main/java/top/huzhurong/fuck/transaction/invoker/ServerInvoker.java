@@ -9,6 +9,7 @@ import top.huzhurong.fuck.transaction.support.Request;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author chenshun00@gmail.com
@@ -18,6 +19,8 @@ import java.lang.reflect.Method;
 public class ServerInvoker extends Invoker {
 
     private ApplicationContext applicationContext;
+
+    private static AtomicInteger atomicInteger = new AtomicInteger(1);
 
     public Object invoke() {
         Assert.notNull(request, "request不能为空");
@@ -32,11 +35,12 @@ public class ServerInvoker extends Invoker {
                 service = applicationContext.getBean(aClass);
                 ServiceCache.put(serviceName, service);
             }
-            log.info("开始执行rpc方法{}:{}", serviceName, methodName);
+//            log.info("开始执行rpc方法 {}:{}", serviceName, methodName);
             Method method = service.getClass().getDeclaredMethod(methodName, parameters);
             Object invoke = method.invoke(service, args);
             request.setMethod(method);
-            log.info("执行rpc方法{}:{} 结束,结果:{}", serviceName, methodName, invoke);
+//            log.info("执行rpc方法结束{}:{} 结束,结果:{}", serviceName, methodName, invoke);
+            System.out.println("次数:" + atomicInteger.getAndIncrement());
             return invoke;
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException e) {
             return e;

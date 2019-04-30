@@ -1,19 +1,17 @@
 package top.huzhurong.fuck.transaction.invoker;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.socket.SocketChannel;
 import org.springframework.util.Assert;
-import org.springframework.util.ReflectionUtils;
 import top.huzhurong.fuck.serialization.SerializationFactory;
 import top.huzhurong.fuck.transaction.Client;
+import top.huzhurong.fuck.transaction.netty.future.ResponseFuture;
 import top.huzhurong.fuck.transaction.netty.request.NettyClient;
 import top.huzhurong.fuck.transaction.support.*;
-import top.huzhurong.fuck.util.MethodUtils;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * @author chenshun00@gmail.com
@@ -27,46 +25,40 @@ public class ClientInvoker extends Invoker {
 
     @Override
     public Object invoke() {
-        Request request = getRequest();
         Assert.notNull(request, "request 不能为空!");
 
         String info = request.getProvider().buildIfno();
-        SocketChannel channel = ChannelMap.get(info);
+        AtomicReference<SocketChannel> channel = new AtomicReference<>(ChannelMap.get(info));
         Provider provider = request.getProvider();
-        if (channel == null) {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        if (channel.get() == null) {
+
             Client client = new NettyClient(provider, SerializationFactory.resolve(request.getSerialization(), request.getServiceName()));
-            client.connect(provider.getHost(), provider.getPort());
-            channel = ChannelMap.get(info);
-        }
-        if (channel == null) {
-            throw new RuntimeException("获取远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
-        }
-
-        SocketChannel finalChannel = channel;
-        Future<Response> submit = TempResultSet.executorService.submit(() -> {
-            Assert.notNull(finalChannel, "通道不能为空");
-            //过滤的应该是插入这里才好吧
-            finalChannel.writeAndFlush(request);
-            if (MethodUtils.isVoid(request.getMethod())){
-                return null;
-            }
-            //这里可以改造成 CountDownLatch,可以比 ;; 循环要好
-            for (; ; ) {
-                Response response = TempResultSet.get(request.getRequestId());
-                if (response != null) {
-                    return response;
+            ChannelFuture channelFuture = client.connect(provider.getHost(), provider.getPort());
+            channelFuture.addListener(future -> {
+                if (future.isSuccess()) {
+                    channel.set(ChannelMap.get(info));
+                    countDownLatch.countDown();
                 }
-            }
-        });
-        if (MethodUtils.isVoid(request.getMethod())){
-            return null;
+            });
         }
-
+        if (channel.get() == null) {
+            try {
+                countDownLatch.await(10000, TimeUnit.MICROSECONDS);
+            } catch (Exception e) {
+                throw new RuntimeException("链接远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
+            }
+            if (channel.get() == null) {
+                throw new RuntimeException("链接远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
+            }
+        }
+        write(channel);
+        ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(),
+                new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout()));
         try {
-            Response response = submit.get(request.getTimeout(), TimeUnit.SECONDS);
+            Response response = responseFuture.waitForRepsonse();
             if (response == null) {
-                //这里应该是超时了
-                throw new RuntimeException("unknown exception");
+                throw new RuntimeException("timeout exception:" + request.getTimeout());
             }
             if (response.getSuccess()) {
                 return response.getObject();
@@ -76,8 +68,13 @@ public class ClientInvoker extends Invoker {
                 throw new RuntimeException(exception);
             }
             throw new RuntimeException("unknown exception");
-        } catch (TimeoutException | InterruptedException | ExecutionException ex) {
+        } catch (InterruptedException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private void write(AtomicReference<SocketChannel> channel) {
+        SocketChannel socketChannel = channel.get();
+        socketChannel.writeAndFlush(request);
     }
 }
