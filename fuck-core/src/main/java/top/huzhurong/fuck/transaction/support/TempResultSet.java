@@ -38,6 +38,7 @@ public class TempResultSet {
 
 
     private static final ConcurrentMap<String /* opaque */, ResponseFuture> responseTable = new ConcurrentHashMap<>(256);
+    public static final ConcurrentMap<String /* opaque */, CompletableFuture<Object>> asyncTable = new ConcurrentHashMap<>(256);
 
     public static ResponseFuture putResponseFuture(final String requestId, final ResponseFuture responseFuture) {
         ResponseFuture put = responseTable.put(requestId, responseFuture);

@@ -24,6 +24,8 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author chenshun00@gmail.com
@@ -39,6 +41,21 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
     private Integer timeout = 10;
     private Object object;
     private String loadBalance;
+    private Boolean async = false;
+
+    public void setAsync(Boolean async) {
+        if (async) {
+            if (this.object != null) {
+                Class<CompletableFuture> completableFutureClass = CompletableFuture.class;
+                if (!this.object.getClass().isAssignableFrom(completableFutureClass)) {
+                    throw new IllegalStateException("异步仅支持返回CompletableFuture对象");
+                }
+            }
+        }
+        this.async = async;
+    }
+
+    private AtomicBoolean register = new AtomicBoolean(false);
 
     private ApplicationContext applicationContext;
 
@@ -74,12 +91,14 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
     }
 
     private void buildConsumer(ZkRegister zkRegister) {
-        Consumer consumer = new Consumer();
-        consumer.setHost(NetUtils.getLocalHost());
-        consumer.setTimeout(this.timeout);
-        consumer.setVersion(this.version);
-        consumer.setServiceName(this.interfaceName);
-        zkRegister.registerConsumer(consumer);
+        if (register.compareAndSet(false, true)) {
+            Consumer consumer = new Consumer();
+            consumer.setHost(NetUtils.getLocalHost());
+            consumer.setTimeout(this.timeout);
+            consumer.setVersion(this.version);
+            consumer.setServiceName(this.interfaceName);
+            zkRegister.registerConsumer(consumer);
+        }
     }
 
     @Override
@@ -94,12 +113,14 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         private String version;
         private LoadBalance loadBalance;
         private Integer timeout;
+        private ReferenceBean referenceBean;
 
         FuckRpcInvocationHandler(ReferenceBean referenceBean) {
             Assert.notNull(referenceBean, "referenceBean 不能为空");
             this.className = referenceBean.getInterfaceName();
             this.version = referenceBean.getVersion();
             this.timeout = referenceBean.getTimeout();
+            this.referenceBean = referenceBean;
             loadBalance = LoadBalanceFactory.resolve(referenceBean.getLoadBalance());
         }
 
@@ -110,7 +131,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                 throw new RuntimeException("服务端列表[" + this.className + "--" + this.version + "]为空");
             }
             Provider provider = loadBalance.getProvider(all);
-            Request request = Request.buildRequest(provider, method, args, timeout);
+            Request request = Request.buildRequest(provider, method, args, timeout, referenceBean);
             List<FuckFilter> fuckFilters = FuckFilterManager.instance.getConsumerFilter();
             FuckFilterChain fuckFilterChain = new FuckFilterChain(fuckFilters, new ClientInvoker(request));
             return fuckFilterChain.doNext(request, null);

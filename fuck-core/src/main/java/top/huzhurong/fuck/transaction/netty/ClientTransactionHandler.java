@@ -13,6 +13,7 @@ import top.huzhurong.fuck.transaction.support.Response;
 import top.huzhurong.fuck.transaction.support.TempResultSet;
 
 import java.io.Serializable;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * @author chenshun00@gmail.com
@@ -41,9 +42,21 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Serializable serializable) {
         if (serializable instanceof Response) {
             Response response = (Response) serializable;
-            ResponseFuture responseFuture = TempResultSet.getResponseFuture(response.getRequestId());
-            if (responseFuture != null) {
-                responseFuture.putResponse(response);
+            if (response.getAsync()) {
+                CompletableFuture<Object> objectCompletableFuture = TempResultSet.asyncTable.get(response.getRequestId());
+                if (objectCompletableFuture != null) {
+                    if (response.getObject() != null) {
+                        objectCompletableFuture.complete(response.getObject());
+                    } else {
+                        assert response.getException() != null;
+                        objectCompletableFuture.completeExceptionally(response.getException());
+                    }
+                }
+            } else {
+                ResponseFuture responseFuture = TempResultSet.getResponseFuture(response.getRequestId());
+                if (responseFuture != null) {
+                    responseFuture.putResponse(response);
+                }
             }
         }
     }

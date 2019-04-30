@@ -9,6 +9,7 @@ import top.huzhurong.fuck.transaction.netty.future.ResponseFuture;
 import top.huzhurong.fuck.transaction.netty.request.NettyClient;
 import top.huzhurong.fuck.transaction.support.*;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -52,29 +53,34 @@ public class ClientInvoker extends Invoker {
                 throw new RuntimeException("链接远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
             }
         }
+        ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout()));
         write(channel);
-        ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(),
-                new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout()));
-        try {
-            Response response = responseFuture.waitForRepsonse();
-            if (response == null) {
-                throw new RuntimeException("timeout exception:" + request.getTimeout());
+        if (!request.getAsync()) {
+            try {
+                Response response = responseFuture.waitForRepsonse();
+                if (response == null) {
+                    throw new RuntimeException("timeout exception:" + request.getTimeout());
+                }
+                if (response.getSuccess()) {
+                    return response.getObject();
+                }
+                Throwable exception = response.getException();
+                if (exception != null) {
+                    throw new RuntimeException(exception);
+                }
+                throw new RuntimeException("unknown exception");
+            } catch (InterruptedException ex) {
+                throw new RuntimeException(ex);
             }
-            if (response.getSuccess()) {
-                return response.getObject();
-            }
-            Throwable exception = response.getException();
-            if (exception != null) {
-                throw new RuntimeException(exception);
-            }
-            throw new RuntimeException("unknown exception");
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
+        } else {
+            CompletableFuture<Object> completableFuture = new CompletableFuture<>();
+            TempResultSet.asyncTable.put(request.getRequestId(), completableFuture);
+            return completableFuture;
         }
     }
 
-    private void write(AtomicReference<SocketChannel> channel) {
+    private ChannelFuture write(AtomicReference<SocketChannel> channel) {
         SocketChannel socketChannel = channel.get();
-        socketChannel.writeAndFlush(request);
+        return socketChannel.writeAndFlush(request);
     }
 }

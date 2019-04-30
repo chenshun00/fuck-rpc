@@ -12,8 +12,6 @@ public class ConsumerDemo {
     public static void main(String[] args) {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("test.xml");
         UserService bean = applicationContext.getBean(UserService.class);
-        for (int i = 0; i < 2000; i++) {
-            System.out.println(bean.name());
-        }
+        System.out.println(bean.name());
     }
 }

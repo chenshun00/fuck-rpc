@@ -40,6 +40,7 @@ public class ResponseTask implements Runnable {
         response.setSuccess(true);
         Object object = chain.doNext(this.request, response);
         response.setObject(object);
+        response.setAsync(this.request.getAsync());
         if (object instanceof Throwable) {
             response.setObject(null);
             response.setException((Throwable) object);

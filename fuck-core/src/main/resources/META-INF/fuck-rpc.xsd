@@ -73,6 +73,11 @@
                     <xsd:documentation><![CDATA[服务版本]]></xsd:documentation>
                 </xsd:annotation>
             </xsd:attribute>
+            <xsd:attribute name="async" type="xsd:boolean">
+                <xsd:annotation>
+                    <xsd:documentation><![CDATA[同步或异步]]></xsd:documentation>
+                </xsd:annotation>
+            </xsd:attribute>
         </xsd:complexType>
     </xsd:element>
 
