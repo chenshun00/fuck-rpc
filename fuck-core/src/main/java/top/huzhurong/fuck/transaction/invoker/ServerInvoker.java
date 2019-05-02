@@ -9,6 +9,7 @@ import top.huzhurong.fuck.transaction.support.Request;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -35,11 +36,14 @@ public class ServerInvoker extends Invoker {
                 service = applicationContext.getBean(aClass);
                 ServiceCache.put(serviceName, service);
             }
-//            log.info("开始执行rpc方法 {}:{}", serviceName, methodName);
             Method method = service.getClass().getDeclaredMethod(methodName, parameters);
             Object invoke = method.invoke(service, args);
-            request.setMethod(method);
-//            log.info("执行rpc方法结束{}:{} 结束,结果:{}", serviceName, methodName, invoke);
+            if (invoke instanceof CompletableFuture) {
+                CompletableFuture future = (CompletableFuture) invoke;
+                Object o = future.get();
+                System.out.println("次数:" + atomicInteger.getAndIncrement());
+                return o;
+            }
             System.out.println("次数:" + atomicInteger.getAndIncrement());
             return invoke;
         } catch (ClassNotFoundException | IllegalAccessException | NoSuchMethodException e) {

@@ -29,7 +29,7 @@ public class Request implements Serializable {
     transient private Integer timeout;
     transient private Method method;
 
-    public static Request buildRequest(Provider provider, Method method, Object[] args, Integer timeout, ReferenceBean referenceBean) {
+    public static Request buildRequest(Provider provider, Method method, Object[] args, Integer timeout) {
         Request request = new Request();
         request.setRequestId(UUID.randomUUID().toString());
         request.setServiceName(provider.getServiceName());
@@ -40,7 +40,6 @@ public class Request implements Serializable {
         request.setProvider(provider);
         request.setTimeout(timeout);
         request.setMethod(method);
-        request.setAsync(referenceBean.isAsync());
         return request;
     }
 }

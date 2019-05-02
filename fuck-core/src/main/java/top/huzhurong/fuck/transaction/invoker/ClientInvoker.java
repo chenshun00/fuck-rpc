@@ -53,10 +53,10 @@ public class ClientInvoker extends Invoker {
                 throw new RuntimeException("链接远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
             }
         }
-        ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout()));
         write(channel);
         if (!request.getAsync()) {
             try {
+                ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout()));
                 Response response = responseFuture.waitForRepsonse();
                 if (response == null) {
                     throw new RuntimeException("timeout exception:" + request.getTimeout());

@@ -16,7 +16,6 @@ import top.huzhurong.fuck.filter.annotation.FuckFilterChain;
 import top.huzhurong.fuck.proxy.ProviderSet;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 import top.huzhurong.fuck.transaction.invoker.ClientInvoker;
-import top.huzhurong.fuck.transaction.invoker.Invoker;
 import top.huzhurong.fuck.transaction.support.*;
 import top.huzhurong.fuck.util.NetUtils;
 
@@ -41,19 +40,6 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
     private Integer timeout = 10;
     private Object object;
     private String loadBalance;
-    private Boolean async = false;
-
-    public void setAsync(Boolean async) {
-        if (async) {
-            if (this.object != null) {
-                Class<CompletableFuture> completableFutureClass = CompletableFuture.class;
-                if (!this.object.getClass().isAssignableFrom(completableFutureClass)) {
-                    throw new IllegalStateException("异步仅支持返回CompletableFuture对象");
-                }
-            }
-        }
-        this.async = async;
-    }
 
     private AtomicBoolean register = new AtomicBoolean(false);
 
@@ -131,7 +117,8 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
                 throw new RuntimeException("服务端列表[" + this.className + "--" + this.version + "]为空");
             }
             Provider provider = loadBalance.getProvider(all);
-            Request request = Request.buildRequest(provider, method, args, timeout, referenceBean);
+            Request request = Request.buildRequest(provider, method, args, timeout);
+            request.setAsync(method.getReturnType().isAssignableFrom(CompletableFuture.class));
             List<FuckFilter> fuckFilters = FuckFilterManager.instance.getConsumerFilter();
             FuckFilterChain fuckFilterChain = new FuckFilterChain(fuckFilters, new ClientInvoker(request));
             return fuckFilterChain.doNext(request, null);
