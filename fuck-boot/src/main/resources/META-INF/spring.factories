@@ -1,0 +1,8 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+top.huzhurong.fuck.autoconfigure.FuckAutoConfiguration
+
+
+#org.springframework.context.ApplicationListener=\
+#com.alibaba.boot.dubbo.context.event.OverrideDubboConfigApplicationListener,\
+#com.alibaba.boot.dubbo.context.event.WelcomeLogoApplicationListener,\
+#com.alibaba.boot.dubbo.context.event.AwaitingNonWebApplicationListener

@@ -13,6 +13,8 @@
         <module>fuck-core</module>
         <module>fuck-serialize</module>
         <module>fuck-test</module>
+        <module>fuck-boot</module>
+        <module>fuck-boot-test</module>
     </modules>
 
     <properties>
