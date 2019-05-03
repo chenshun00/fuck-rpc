@@ -5,6 +5,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.util.StringUtils;
 import top.huzhurong.fuck.register.IRegister;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 import top.huzhurong.fuck.serialization.ISerialization;
@@ -14,6 +15,7 @@ import top.huzhurong.fuck.transaction.netty.request.NettyServer;
 import top.huzhurong.fuck.transaction.support.Provider;
 import top.huzhurong.fuck.util.NetUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +25,7 @@ import java.util.List;
  * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
-public class ServiceBean implements InitializingBean, ApplicationContextAware {
+public class ServiceBean implements InitializingBean, ApplicationContextAware, Serializable {
 
     private String id;
     private String interfaceName;
@@ -32,7 +34,6 @@ public class ServiceBean implements InitializingBean, ApplicationContextAware {
     private IRegister register;
     private String serialization;
     private Object impl;
-
 
     private ApplicationContext applicationContext;
     private ProtocolPort protocolPort;

@@ -4,12 +4,15 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import top.huzhurong.fuck.register.zk.ZkRegister;
 
+import java.io.Serializable;
+
 /**
  * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
-public class AddressBean implements FactoryBean<ZkRegister>, InitializingBean {
+public class AddressBean implements FactoryBean<ZkRegister>, InitializingBean,Serializable {
 
+    private String id;
     private ZkRegister zkRegister;
     private Integer session;
     private Integer connection;
@@ -69,5 +72,13 @@ public class AddressBean implements FactoryBean<ZkRegister>, InitializingBean {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

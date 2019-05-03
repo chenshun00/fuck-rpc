@@ -19,6 +19,7 @@ import top.huzhurong.fuck.transaction.invoker.ClientInvoker;
 import top.huzhurong.fuck.transaction.support.*;
 import top.huzhurong.fuck.util.NetUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -33,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Getter
 @Setter
 @Slf4j
-public class ReferenceBean implements FactoryBean, InitializingBean, ApplicationContextAware {
+public class ReferenceBean implements FactoryBean, InitializingBean, ApplicationContextAware,Serializable {
     private String id;
     private String interfaceName;
     private String version;

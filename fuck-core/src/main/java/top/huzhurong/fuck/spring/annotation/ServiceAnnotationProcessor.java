@@ -1,7 +1,6 @@
 package top.huzhurong.fuck.spring.annotation;
 
 import org.springframework.beans.BeansException;
-import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.factory.BeanClassLoaderAware;
 import org.springframework.beans.factory.config.*;
 import org.springframework.beans.factory.support.*;
@@ -14,10 +13,11 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.*;
+import top.huzhurong.fuck.spring.bean.AddressBean;
+import top.huzhurong.fuck.spring.bean.PortBean;
 import top.huzhurong.fuck.spring.bean.ServiceBean;
 
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import static org.springframework.beans.factory.support.BeanDefinitionBuilder.rootBeanDefinition;
@@ -42,7 +42,6 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
         this.packages = packages;
     }
 
-
     @Override
     public void setBeanClassLoader(ClassLoader classLoader) {
         this.classLoader = classLoader;
@@ -51,6 +50,17 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
     @Override
     public void postProcessBeanDefinitionRegistry(BeanDefinitionRegistry registry) throws BeansException {
         this.registry = registry;
+
+        if (StringUtils.hasText(environment.getProperty("fuck.protocol.port"))) {
+            BeanDefinitionBuilder builder = rootBeanDefinition(PortBean.class);
+            builder.addPropertyValue("port", environment.getProperty("fuck.protocol.port", "12345"));
+            registry.registerBeanDefinition("portBean", builder.getBeanDefinition());
+        }
+
+        BeanDefinitionBuilder registryBean = rootBeanDefinition(AddressBean.class);
+        registryBean.addPropertyValue("address", environment.getProperty("fuck.registry.address", "127.0.0.1:2181"));
+        registry.registerBeanDefinition("addressBean", registryBean.getBeanDefinition());
+
         Set<String> resolvedPackagesToScan = resolvePackagesToScan(packages);
         if (!CollectionUtils.isEmpty(resolvedPackagesToScan)) {
             registerServiceBeans(resolvedPackagesToScan, registry);
@@ -82,11 +92,10 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
             // Registers @Service Bean first
             scanner.scan(packageToScan);
             // Finds all BeanDefinitionHolders of @Service whether @ComponentScan scans or not.
-            Set<BeanDefinitionHolder> beanDefinitionHolders =
-                    findServiceBeanDefinitionHolders(scanner, packageToScan, registry, beanNameGenerator);
+            Set<BeanDefinitionHolder> beanDefinitionHolders = findServiceBeanDefinitionHolders(scanner, packageToScan, registry, beanNameGenerator);
             if (!CollectionUtils.isEmpty(beanDefinitionHolders)) {
                 for (BeanDefinitionHolder beanDefinitionHolder : beanDefinitionHolders) {
-                    registerServiceBean(beanDefinitionHolder, registry, scanner);
+                    registerServiceBean(beanDefinitionHolder, registry);
                 }
             }
         }
@@ -102,20 +111,16 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
         return resolveClassName(beanClassName, classLoader);
     }
 
-    private void registerServiceBean(BeanDefinitionHolder beanDefinitionHolder, BeanDefinitionRegistry registry,
-                                     ClassPathBeanDefinitionScanner scanner) {
+    private void registerServiceBean(BeanDefinitionHolder beanDefinitionHolder, BeanDefinitionRegistry registry) {
 
         Class<?> beanClass = resolveClass(beanDefinitionHolder);
-
         Service service = findAnnotation(beanClass, Service.class);
-
+        if (service == null) {
+            return;
+        }
         Class<?> interfaceClass = resolveServiceInterfaceClass(beanClass, service);
-
         String annotatedServiceBeanName = beanDefinitionHolder.getBeanName();
-
-        AbstractBeanDefinition serviceBeanDefinition =
-                buildServiceBeanDefinition(service, interfaceClass, annotatedServiceBeanName);
-
+        AbstractBeanDefinition serviceBeanDefinition = buildServiceBeanDefinition(service, interfaceClass, annotatedServiceBeanName);
         // ServiceBean Bean name
         String beanName = generateServiceBeanName(service, interfaceClass, annotatedServiceBeanName);
 
@@ -133,8 +138,7 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
             return true;
         }
         BeanDefinition existingDef = this.registry.getBeanDefinition(beanName);
-        BeanDefinition originatingDef = existingDef.getOriginatingBeanDefinition();
-        existingDef = originatingDef;
+        existingDef = existingDef.getOriginatingBeanDefinition();
         if (isCompatible(beanDefinition, existingDef)) {
             return false;
         }
@@ -146,29 +150,15 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
     private static final String SEPARATOR = ":";
 
     private String generateServiceBeanName(Service service, Class<?> interfaceClass, String annotatedServiceBeanName) {
-
         StringBuilder beanNameBuilder = new StringBuilder(ServiceBean.class.getSimpleName());
-
         beanNameBuilder.append(SEPARATOR).append(annotatedServiceBeanName);
-
         String interfaceClassName = interfaceClass.getName();
-
         beanNameBuilder.append(SEPARATOR).append(interfaceClassName);
-
         String version = service.version();
-
         if (StringUtils.hasText(version)) {
             beanNameBuilder.append(SEPARATOR).append(version);
         }
-
-        String group = service.group();
-
-        if (StringUtils.hasText(group)) {
-            beanNameBuilder.append(SEPARATOR).append(group);
-        }
-
         return beanNameBuilder.toString();
-
     }
 
     public static <T> T[] of(T... values) {
@@ -180,83 +170,30 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
         builder.addPropertyReference(propertyName, resolvedBeanName);
     }
 
-    private AbstractBeanDefinition buildServiceBeanDefinition(Service service, Class<?> interfaceClass,
-                                                              String annotatedServiceBeanName) {
+    private void addValue(BeanDefinitionBuilder builder, String propertyName, Object beanName) {
+        String resolvedBeanName = environment.resolvePlaceholders(beanName.toString());
+        builder.addPropertyValue(propertyName, resolvedBeanName);
+    }
 
+    private AbstractBeanDefinition buildServiceBeanDefinition(Service service, Class<?> interfaceClass, String annotatedServiceBeanName) {
         BeanDefinitionBuilder builder = rootBeanDefinition(ServiceBean.class);
-
-        AbstractBeanDefinition beanDefinition = builder.getBeanDefinition();
-
-        MutablePropertyValues propertyValues = beanDefinition.getPropertyValues();
-
-        String[] ignoreAttributeNames = of("provider", "monitor", "application", "module", "registry", "protocol", "interface");
-
         //propertyValues.addPropertyValues(new AnnotationPropertyValuesAdapter(service, environment, ignoreAttributeNames));
-
         // References "ref" property to annotated-@Service Bean
-        addPropertyReference(builder, "ref", annotatedServiceBeanName);
+        addValue(builder, "impl", annotatedServiceBeanName);
         // Set interface
-        builder.addPropertyValue("interface", interfaceClass.getName());
+        service.interfaceClass();
+        addValue(builder, "interfaceName", interfaceClass.getName());
+        addValue(builder, "version", service.version());
+        addValue(builder, "weight", service.weight());
+        addValue(builder, "serialization", service.serialization());
 
-        /**
-         * Add {@link com.alibaba.dubbo.config.ProviderConfig} Bean reference
-         */
-        String providerConfigBeanName = service.provider();
-        if (StringUtils.hasText(providerConfigBeanName)) {
-            addPropertyReference(builder, "provider", providerConfigBeanName);
-        }
-
-        /**
-         * Add {@link com.alibaba.dubbo.config.MonitorConfig} Bean reference
-         */
-        String monitorConfigBeanName = service.monitor();
-        if (StringUtils.hasText(monitorConfigBeanName)) {
-            addPropertyReference(builder, "monitor", monitorConfigBeanName);
-        }
-
-        /**
-         * Add {@link com.alibaba.dubbo.config.ApplicationConfig} Bean reference
-         */
-        String applicationConfigBeanName = service.application();
-        if (StringUtils.hasText(applicationConfigBeanName)) {
-            addPropertyReference(builder, "application", applicationConfigBeanName);
-        }
-
-        /**
-         * Add {@link com.alibaba.dubbo.config.ModuleConfig} Bean reference
-         */
-        String moduleConfigBeanName = service.module();
-        if (StringUtils.hasText(moduleConfigBeanName)) {
-            addPropertyReference(builder, "module", moduleConfigBeanName);
-        }
-
-
-        /**
-         * Add {@link com.alibaba.dubbo.config.RegistryConfig} Bean reference
-         */
-        String[] registryConfigBeanNames = service.registry();
-
-        List<RuntimeBeanReference> registryRuntimeBeanReferences = toRuntimeBeanReferences(registryConfigBeanNames);
-
-        if (!registryRuntimeBeanReferences.isEmpty()) {
-            builder.addPropertyValue("registries", registryRuntimeBeanReferences);
-        }
-
-        /**
-         * Add {@link com.alibaba.dubbo.config.ProtocolConfig} Bean reference
-         */
-        String[] protocolConfigBeanNames = service.protocol();
-
-        List<RuntimeBeanReference> protocolRuntimeBeanReferences = toRuntimeBeanReferences(protocolConfigBeanNames);
-
-        if (!protocolRuntimeBeanReferences.isEmpty()) {
-            builder.addPropertyValue("protocols", protocolRuntimeBeanReferences);
-        }
+        addPropertyReference(builder, "protocolPort", "portBean");
+        addPropertyReference(builder, "register", "addressBean");
         return builder.getBeanDefinition();
     }
 
     private ManagedList<RuntimeBeanReference> toRuntimeBeanReferences(String... beanNames) {
-        ManagedList<RuntimeBeanReference> runtimeBeanReferences = new ManagedList<RuntimeBeanReference>();
+        ManagedList<RuntimeBeanReference> runtimeBeanReferences = new ManagedList<>();
         if (!ObjectUtils.isEmpty(beanNames)) {
             for (String beanName : beanNames) {
                 String resolvedBeanName = environment.resolvePlaceholders(beanName);
@@ -267,36 +204,23 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
     }
 
     private Class<?> resolveServiceInterfaceClass(Class<?> annotatedServiceBeanClass, Service service) {
-
         Class<?> interfaceClass = service.interfaceClass();
-
         if (void.class.equals(interfaceClass)) {
-
             interfaceClass = null;
-
             String interfaceClassName = service.interfaceName();
-
             if (StringUtils.hasText(interfaceClassName)) {
                 if (ClassUtils.isPresent(interfaceClassName, classLoader)) {
                     interfaceClass = resolveClassName(interfaceClassName, classLoader);
                 }
             }
-
         }
-
         if (interfaceClass == null) {
-
             Class<?>[] allInterfaces = annotatedServiceBeanClass.getInterfaces();
-
             if (allInterfaces.length > 0) {
                 interfaceClass = allInterfaces[0];
             }
-
         }
-
-        Assert.notNull(interfaceClass,
-                "@Service interfaceClass() or interfaceName() or interface class must be present!");
-
+        Assert.notNull(interfaceClass, "@Service interfaceClass() or interfaceName() or interface class must be present!");
         Assert.isTrue(interfaceClass.isInterface(),
                 "The type that was annotated @Service is not an interface!");
 
@@ -308,17 +232,12 @@ public class ServiceAnnotationProcessor implements BeanDefinitionRegistryPostPro
             BeanNameGenerator beanNameGenerator) {
         Set<BeanDefinition> beanDefinitions = scanner.findCandidateComponents(packageToScan);
         Set<BeanDefinitionHolder> beanDefinitionHolders = new LinkedHashSet<BeanDefinitionHolder>(beanDefinitions.size());
-
         for (BeanDefinition beanDefinition : beanDefinitions) {
-
             String beanName = beanNameGenerator.generateBeanName(beanDefinition, registry);
             BeanDefinitionHolder beanDefinitionHolder = new BeanDefinitionHolder(beanDefinition, beanName);
             beanDefinitionHolders.add(beanDefinitionHolder);
-
         }
-
         return beanDefinitionHolders;
-
     }
 
     private Set<String> resolvePackagesToScan(Set<String> packagesToScan) {

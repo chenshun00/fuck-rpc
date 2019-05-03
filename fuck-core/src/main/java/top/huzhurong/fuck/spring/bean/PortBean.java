@@ -3,11 +3,20 @@ package top.huzhurong.fuck.spring.bean;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 
+import java.io.Serializable;
+
 /**
  * @author chenshun00@gmail.com
  * @since 2018/12/2
  */
-public class PortBean implements FactoryBean<ProtocolPort>, InitializingBean {
+public class PortBean implements FactoryBean<ProtocolPort>, InitializingBean,Serializable {
+
+    public PortBean() {
+    }
+
+    public PortBean(Integer port) {
+        this.port = port;
+    }
 
     private Integer port;
     private ProtocolPort protocolPort;

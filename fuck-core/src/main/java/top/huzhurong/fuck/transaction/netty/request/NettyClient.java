@@ -8,6 +8,7 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import top.huzhurong.fuck.serialization.ISerialization;
 import top.huzhurong.fuck.transaction.Client;
 import top.huzhurong.fuck.transaction.netty.ClientTransactionHandler;
@@ -22,6 +23,7 @@ import java.net.SocketAddress;
  * @author chenshun00@gmail.com
  * @since 2018/12/1
  */
+@Slf4j
 public class NettyClient implements Client {
 
     private NioEventLoopGroup work;
@@ -76,7 +78,9 @@ public class NettyClient implements Client {
         public void connect(ChannelHandlerContext ctx, SocketAddress remoteAddress, SocketAddress localAddress,
                             ChannelPromise promise) throws Exception {
             super.connect(ctx, remoteAddress, localAddress, promise);
-            System.out.println("localAddress:" + localAddress + "\tremoteAddress:" + remoteAddress);
+            if (log.isDebugEnabled()) {
+                log.debug("CONNECT SERVER [{}]", remoteAddress.toString());
+            }
         }
     }
 

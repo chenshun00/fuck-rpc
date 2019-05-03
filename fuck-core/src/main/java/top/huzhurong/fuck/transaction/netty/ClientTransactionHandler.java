@@ -32,8 +32,8 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         String info = this.provider.buildIfno();
-        if (log.isErrorEnabled()) {
-            log.warn("连接断开:{}", this.provider);
+        if (log.isInfoEnabled()) {
+            log.info("连接断开:{}", this.provider);
         }
         ChannelMap.remove(info);
     }

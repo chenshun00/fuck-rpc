@@ -1,0 +1,26 @@
+{
+  "hints": [],
+  "groups": [],
+  "properties": [
+    {
+      "sourceType": "top.huzhurong.fuck.autoconfigure.config.ProtocolConfig",
+      "name": "fuck.protocol.id",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "top.huzhurong.fuck.autoconfigure.config.ProtocolConfig",
+      "name": "fuck.protocol.port",
+      "type": "java.lang.Integer"
+    },
+    {
+      "sourceType": "top.huzhurong.fuck.autoconfigure.config.RegisterConfig",
+      "name": "fuck.registry.address",
+      "type": "java.lang.String"
+    },
+    {
+      "sourceType": "top.huzhurong.fuck.autoconfigure.config.RegisterConfig",
+      "name": "fuck.registry.id",
+      "type": "java.lang.String"
+    }
+  ]
+}
