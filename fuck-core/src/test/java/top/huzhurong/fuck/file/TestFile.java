@@ -1,7 +1,5 @@
 package top.huzhurong.fuck.file;
 
-import org.junit.Test;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -17,6 +15,7 @@ public class TestFile {
         TestFile file = new TestFile();
         file.testFileWatch();
     }
+
     public void testFileWatch() throws Exception {
         FileWatchService fileWatchService = new FileWatchService(new String[]{"/Users/chenshun/Desktop/abc.sh"}, path -> {
             Path ppp = Paths.get(path);

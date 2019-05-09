@@ -20,7 +20,7 @@ import java.util.concurrent.Executors;
 @Slf4j
 public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serializable> {
 
-    private ExecutorService responseTask = Executors.newFixedThreadPool(1, TempResultSet.defaultThreadFactory());
+    private ExecutorService responseTask = Executors.newFixedThreadPool(10, TempResultSet.defaultThreadFactory());
 
     private ApplicationContext applicationContext;
 
