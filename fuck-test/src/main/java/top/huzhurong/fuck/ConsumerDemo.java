@@ -3,6 +3,7 @@ package top.huzhurong.fuck;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -11,15 +12,17 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ConsumerDemo {
     static AtomicInteger atomicInteger = new AtomicInteger();
+
     public static void main(String[] args) throws InterruptedException {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("test.xml");
         UserService bean = applicationContext.getBean(UserService.class);
-        for (int i = 0; i < 100000; i++) {
-            String name = bean.name();
-            System.out.println(name);
-            atomicInteger.getAndIncrement();
-        }
-        System.out.println("atomicInteger:"+atomicInteger);
+//        for (int i = 0; i < 100000; i++) {
+        String name = bean.name();
+        System.out.println(name);
+//            atomicInteger.getAndIncrement();
+//        }
+        TimeUnit.SECONDS.sleep(100000000);
+//        System.out.println("atomicInteger:"+atomicInteger);
 //        CompletableFuture<String> chen = bean.good("chen");
 //        chen.whenComplete((result, e) -> {
 //            if (e != null) {

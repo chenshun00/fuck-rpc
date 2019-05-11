@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Getter
 @Setter
 @Slf4j
-public class ReferenceBean implements FactoryBean, InitializingBean, ApplicationContextAware,Serializable {
+public class ReferenceBean implements FactoryBean, InitializingBean, ApplicationContextAware, Serializable {
     private String id;
     private String interfaceName;
     private String version;
@@ -100,14 +100,12 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         private String version;
         private LoadBalance loadBalance;
         private Integer timeout;
-        private ReferenceBean referenceBean;
 
         FuckRpcInvocationHandler(ReferenceBean referenceBean) {
             Assert.notNull(referenceBean, "referenceBean 不能为空");
             this.className = referenceBean.getInterfaceName();
             this.version = referenceBean.getVersion();
             this.timeout = referenceBean.getTimeout();
-            this.referenceBean = referenceBean;
             loadBalance = LoadBalanceFactory.resolve(referenceBean.getLoadBalance());
         }
 

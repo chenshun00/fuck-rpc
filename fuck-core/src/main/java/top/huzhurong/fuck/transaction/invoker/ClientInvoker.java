@@ -46,8 +46,8 @@ public class ClientInvoker extends Invoker {
         if (channel.get() == null) {
             try {
                 countDownLatch.await(10000, TimeUnit.MICROSECONDS);
-            } catch (Exception e) {
-                throw new RuntimeException("链接远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");
+            } catch (InterruptedException e) {
+                throw new RuntimeException("链接远程服务中断");
             }
             if (channel.get() == null) {
                 throw new RuntimeException("链接远程服务" + provider.getHost() + ":" + provider.getPort() + "失败");

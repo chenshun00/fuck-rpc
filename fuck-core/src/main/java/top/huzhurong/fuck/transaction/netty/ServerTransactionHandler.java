@@ -6,6 +6,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import top.huzhurong.fuck.transaction.support.Request;
+import top.huzhurong.fuck.transaction.support.Response;
 import top.huzhurong.fuck.transaction.support.TempResultSet;
 
 import java.io.Serializable;
@@ -51,7 +52,16 @@ public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serial
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, Serializable serializable) {
         if (serializable instanceof Request) {
             Request request = (Request) serializable;
-            responseTask.execute(new ResponseTask(request, channelHandlerContext, this.applicationContext));
+            if (request.getCode() == 2) {
+                Response response = new Response();
+                response.setRequestId(request.getRequestId());
+                response.setAsync(Boolean.TRUE);
+                response.setSuccess(Boolean.TRUE);
+                response.setObject("PONG");
+                channelHandlerContext.writeAndFlush(response);
+            } else {
+                responseTask.execute(new ResponseTask(request, channelHandlerContext, this.applicationContext));
+            }
         }
     }
 }

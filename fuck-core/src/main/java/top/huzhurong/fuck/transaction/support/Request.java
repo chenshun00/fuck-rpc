@@ -24,6 +24,11 @@ public class Request implements Serializable {
     private Class<?>[] parameters;
     private Object[] args;
     private Boolean async;
+    /**
+     * 1 biz
+     * 2 heart
+     */
+    private Integer code = 1;
     transient private String serialization;
     transient private Provider provider;
     transient private Integer timeout;

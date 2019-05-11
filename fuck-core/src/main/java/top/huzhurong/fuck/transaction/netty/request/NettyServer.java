@@ -53,11 +53,11 @@ public class NettyServer implements Server {
             final ServerTransactionHandler serverTransactionHandler = new ServerTransactionHandler(this.applicationContext);
             serverBootstrap.group(boss, work)
                     .channel(NioServerSocketChannel.class)
+                    .handler(new LoggingHandler())
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
                             ch.pipeline()
-                                    .addLast(new LoggingHandler())
                                     .addLast(new MessageDecoder(serialization))
                                     .addLast(new MessageEncoder(serialization))
                                     .addLast(serverTransactionHandler);

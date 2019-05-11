@@ -38,6 +38,11 @@ public class Basic {
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) {
+                        //这里是worker线程执行的
+                        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+                        for (StackTraceElement stackTraceElement : stackTrace) {
+                            System.out.println(stackTraceElement.getLineNumber() + "\t" + stackTraceElement.getClassName() + "\t" + stackTraceElement.getMethodName());
+                        }
                         ddd[0] = ch.pipeline();
                         System.out.println(ddd[0]);
                         ch.pipeline()
