@@ -9,6 +9,7 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import top.huzhurong.fuck.balance.LoadBalance;
 import top.huzhurong.fuck.filter.FuckFilter;
 import top.huzhurong.fuck.filter.FuckFilterManager;
@@ -112,7 +113,7 @@ public class ReferenceBean implements FactoryBean, InitializingBean, Application
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             List<Provider> all = ProviderSet.getAll(this.className);
-            if (all == null || all.size() == 0) {
+            if (CollectionUtils.isEmpty(all)) {
                 throw new RuntimeException("服务端列表[" + this.className + "--" + this.version + "]为空");
             }
             Provider provider = loadBalance.getProvider(all);

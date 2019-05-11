@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.Assert;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.NumberUtils;
 import top.huzhurong.fuck.proxy.ProviderSet;
 import top.huzhurong.fuck.register.IRegister;
@@ -134,14 +135,12 @@ public class ZkRegister implements IRegister {
     @Override
     public void subscribe(String service) {
         Assert.notNull(this.zkClient, "zkClient不能为空");
-        String finalPath = root_path + line + service  + root_provider;
+        String finalPath = root_path + line + service + root_provider;
         this.zkClient.subscribeChildChanges(finalPath, (parent, children) -> {
-            if (log.isDebugEnabled()) {
-                log.debug("notify {} about subscribe server:{},provider list:{}", NetUtils.getLocalHost(), service, children);
-            }
+            log.info("notify {} about subscribe server:{},provider list:{}", NetUtils.getLocalHost(), service, children);
             List<Provider> all = ProviderSet.getAll(service);
             List<Provider> collect = children.stream().map(this::toProvider).collect(Collectors.toList());
-            if (all.equals(collect)) {
+            if (!CollectionUtils.isEmpty(all) && all.equals(collect)) {
                 log.debug("提供者没有变更");
             } else {
                 ProviderSet.reset(service, collect);

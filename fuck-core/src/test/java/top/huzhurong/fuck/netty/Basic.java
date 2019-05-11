@@ -9,6 +9,9 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.concurrent.DefaultEventExecutorGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -39,16 +42,13 @@ public class Basic {
                     @Override
                     public void initChannel(SocketChannel ch) {
                         //这里是worker线程执行的
-                        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-                        for (StackTraceElement stackTraceElement : stackTrace) {
-                            System.out.println(stackTraceElement.getLineNumber() + "\t" + stackTraceElement.getClassName() + "\t" + stackTraceElement.getMethodName());
-                        }
                         ddd[0] = ch.pipeline();
                         System.out.println(ddd[0]);
                         ch.pipeline()
+                                .addLast(defaultEventExecutorGroup, "idle", new IdleStateHandler(10, 20, 30))
                                 .addLast(defaultEventExecutorGroup, "11", new AA())
                                 .addLast(defaultEventExecutorGroup, "telnet", telnetHandler);
-                        //.addLast(null, "idle", new IdleStateHandler(3, 3, 4))
+
                     }
                 }).option(ChannelOption.SO_BACKLOG, 128)
                 .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -73,8 +73,23 @@ public class Basic {
 
         @Override
         protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-            System.out.print(Thread.currentThread().getName() + "\t");
             ctx.fireChannelRead(msg);
+        }
+
+        @Override
+        public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+            super.userEventTriggered(ctx, evt);
+
+            if (evt instanceof IdleStateEvent) {
+                IdleStateEvent e = (IdleStateEvent) evt;
+                System.out.println("触发事件:" + e.state());
+                if (e.state() == IdleState.READER_IDLE) {
+                    ctx.writeAndFlush(Unpooled.wrappedBuffer("quit".getBytes()));
+                    //ctx.close();
+                } else if (e.state() == IdleState.WRITER_IDLE) {
+                    ctx.writeAndFlush(Unpooled.wrappedBuffer("quit".getBytes()));
+                }
+            }
         }
     }
 

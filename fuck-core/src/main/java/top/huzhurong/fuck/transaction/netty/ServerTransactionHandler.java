@@ -3,6 +3,8 @@ package top.huzhurong.fuck.transaction.netty;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationContext;
 import top.huzhurong.fuck.transaction.support.Request;
@@ -40,6 +42,19 @@ public class ServerTransactionHandler extends SimpleChannelInboundHandler<Serial
     public void channelInactive(ChannelHandlerContext ctx) {
         if (log.isWarnEnabled()) {
             log.warn("channel inactive :{}", ctx.channel());
+        }
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (evt instanceof IdleStateEvent) {
+            IdleStateEvent e = (IdleStateEvent) evt;
+            log.warn("channel close [{}] [{}]", e.state(), e.isFirst());
+            if (e.state() == IdleState.READER_IDLE) {
+                ctx.close();
+            } else if (e.state() == IdleState.WRITER_IDLE) {
+                ctx.close();
+            }
         }
     }
 

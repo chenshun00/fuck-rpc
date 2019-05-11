@@ -8,6 +8,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.logging.LoggingHandler;
+import io.netty.handler.timeout.IdleStateHandler;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.ApplicationContext;
@@ -60,6 +61,7 @@ public class NettyServer implements Server {
                             ch.pipeline()
                                     .addLast(new MessageDecoder(serialization))
                                     .addLast(new MessageEncoder(serialization))
+                                    .addLast(new IdleStateHandler(20, 40, 60))
                                     .addLast(serverTransactionHandler);
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)

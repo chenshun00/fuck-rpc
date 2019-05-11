@@ -58,6 +58,12 @@ public class ClientTransactionHandler extends SimpleChannelInboundHandler<Serial
         }
     }
 
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        super.userEventTriggered(ctx, evt);
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         Assert.notNull(this.provider, "服务提供者不能为空");
