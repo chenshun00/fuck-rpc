@@ -23,9 +23,6 @@ public class TempResultSet {
         return new FuckThreadFactory();
     }
 
-    public static ExecutorService executorService = Executors.newFixedThreadPool(1, defaultThreadFactory());
-
-
     private static Map<String, Response> serverMap = new ConcurrentHashMap<>(32);
 
     public static void put(String path, Response response) {
@@ -37,8 +34,7 @@ public class TempResultSet {
     }
 
 
-    private static final ConcurrentMap<String /* opaque */, ResponseFuture> responseTable = new ConcurrentHashMap<>(256);
-    public static final ConcurrentMap<String /* opaque */, CompletableFuture<Object>> asyncTable = new ConcurrentHashMap<>(256);
+    private static final ConcurrentMap<String /* requestId */, ResponseFuture> responseTable = new ConcurrentHashMap<>(256);
 
     public static ResponseFuture putResponseFuture(final String requestId, final ResponseFuture responseFuture) {
         ResponseFuture put = responseTable.put(requestId, responseFuture);
@@ -49,24 +45,24 @@ public class TempResultSet {
     }
 
     public static ResponseFuture getResponseFuture(final String requestId) {
-        return responseTable.get(requestId);
+        return responseTable.remove(requestId);
     }
 
-//    static {
-//        ScheduledExecutorService service = Executors.newScheduledThreadPool(1, new FuckThreadFactory("scan-responseTable-"));
-//        service.scheduleAtFixedRate(() -> {
-//            Iterator<Map.Entry<String, ResponseFuture>> iterator = responseTable.entrySet().iterator();
-//            while (iterator.hasNext()) {
-//                Map.Entry<String, ResponseFuture> next = iterator.next();
-//                ResponseFuture value = next.getValue();
-//                long beginTimestamp = value.getBeginTimestamp();
-//                long timeout = value.getTimeout();
-//                long timeMillis = System.currentTimeMillis();
-//                if ((beginTimestamp + timeout + 1000) <= timeMillis) {
-//                    iterator.remove();
-//                }
-//            }
-//        }, 10, 10, TimeUnit.SECONDS);
-//    }
+    static {
+        ScheduledExecutorService service = Executors.newScheduledThreadPool(1, new FuckThreadFactory("scan-responseTable-"));
+        service.scheduleAtFixedRate(() -> {
+            Iterator<Map.Entry<String, ResponseFuture>> iterator = responseTable.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<String, ResponseFuture> next = iterator.next();
+                ResponseFuture value = next.getValue();
+                //1500000 +1000 = 1501000 <== 16000000
+                long beginTimestamp = value.getBeginTimestamp();
+                long timeout = value.getTimeout();
+                if ((beginTimestamp + timeout * 10 + 1000) <= System.currentTimeMillis()) {
+                    iterator.remove();
+                }
+            }
+        }, 10, 10, TimeUnit.SECONDS);
+    }
 
 }

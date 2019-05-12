@@ -4,6 +4,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import lombok.extern.slf4j.Slf4j;
+import top.huzhurong.fuck.transaction.netty.future.ResponseFuture;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -19,8 +20,6 @@ import java.util.concurrent.TimeUnit;
  */
 @Slf4j
 public class ChannelMap {
-
-    private static boolean is_info = log.isInfoEnabled();
 
     private static ScheduledExecutorService HEART_SCHEDULE_SERVICE = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("heart"));
 
@@ -47,11 +46,10 @@ public class ChannelMap {
             request.setAsync(true);
             ChannelFuture write = socketChannel.writeAndFlush(request);
             write.addListener(future -> {
-                if (is_info) {
-                    log.info("send heart to {}", k);
-                }
-                CompletableFuture<Object> completableFuture = new CompletableFuture<>();
-                TempResultSet.asyncTable.put(request.getRequestId(), completableFuture);
+                log.info("send heart to {}", k);
+                final CompletableFuture<Object> completableFuture = new CompletableFuture<>();
+                TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(socketChannel, request.getRequestId()
+                        , 10, completableFuture));
                 completableFuture.whenComplete((result, exception) -> log.info("receive result [{}] [{}]", result, socketChannel));
             });
         }), 10, 10, TimeUnit.SECONDS);

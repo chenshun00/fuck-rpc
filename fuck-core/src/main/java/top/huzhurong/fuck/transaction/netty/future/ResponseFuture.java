@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import top.huzhurong.fuck.transaction.support.Response;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -22,12 +23,16 @@ public class ResponseFuture {
     private volatile boolean sendRequestOK = true;
     private volatile Throwable cause;
     private Response response;
+    private CompletableFuture<Object> future;
     private long timeout;
+    private Boolean async;
 
-    public ResponseFuture(Channel channel, String requestId, long timeout) {
+    public ResponseFuture(Channel channel, String requestId, long timeout, CompletableFuture<Object> future) {
         this.requestId = requestId;
         this.processChannel = channel;
         this.timeout = timeout;
+        this.future = future;
+        async = future != null;
     }
 
     public Response waitForRepsonse() throws InterruptedException {

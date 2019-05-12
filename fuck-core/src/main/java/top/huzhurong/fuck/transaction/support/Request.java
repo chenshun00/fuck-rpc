@@ -3,11 +3,9 @@ package top.huzhurong.fuck.transaction.support;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import top.huzhurong.fuck.spring.bean.ReferenceBean;
 
 import java.io.Serializable;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.UUID;
 
 /**
@@ -36,7 +34,7 @@ public class Request implements Serializable {
 
     public static Request buildRequest(Provider provider, Method method, Object[] args, Integer timeout) {
         Request request = new Request();
-        request.setRequestId(UUID.randomUUID().toString());
+        request.setRequestId(UUID.randomUUID().toString().replaceAll("-", ""));
         request.setServiceName(provider.getServiceName());
         request.setArgs(args);
         request.setMethodName(method.getName());

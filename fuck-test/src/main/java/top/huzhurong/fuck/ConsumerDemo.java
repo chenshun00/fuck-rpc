@@ -2,7 +2,6 @@ package top.huzhurong.fuck;
 
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,11 +15,11 @@ public class ConsumerDemo {
     public static void main(String[] args) throws InterruptedException {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("test.xml");
         UserService bean = applicationContext.getBean(UserService.class);
-//        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 10; i++) {
         String name = bean.name();
         System.out.println(name);
-//            atomicInteger.getAndIncrement();
-//        }
+            atomicInteger.getAndIncrement();
+        }
         TimeUnit.SECONDS.sleep(100000000);
 //        System.out.println("atomicInteger:"+atomicInteger);
 //        CompletableFuture<String> chen = bean.good("chen");

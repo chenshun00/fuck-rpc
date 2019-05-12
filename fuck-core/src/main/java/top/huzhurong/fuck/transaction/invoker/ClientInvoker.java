@@ -56,7 +56,7 @@ public class ClientInvoker extends Invoker {
         write(channel);
         if (!request.getAsync()) {
             try {
-                ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout()));
+                ResponseFuture responseFuture = TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout(), null));
                 Response response = responseFuture.waitForRepsonse();
                 if (response == null) {
                     throw new RuntimeException("timeout exception:" + request.getTimeout());
@@ -74,7 +74,7 @@ public class ClientInvoker extends Invoker {
             }
         } else {
             CompletableFuture<Object> completableFuture = new CompletableFuture<>();
-            TempResultSet.asyncTable.put(request.getRequestId(), completableFuture);
+            TempResultSet.putResponseFuture(request.getRequestId(), new ResponseFuture(channel.get(), request.getRequestId(), request.getTimeout(), completableFuture));
             return completableFuture;
         }
     }
