@@ -24,4 +24,9 @@ tcp本身的双向通信是异步的,netty支持的nio底层也是异步。
 *   每一个pipeline都会将自己的channel的handler(上下文) channelHandlerContext串联成链表，head和tail由netty分配
 *   每一个channel都会分配到一个NioEventLoop上,这个eventLopp可以netty传递进行的，也可以是netty自己的 (每一个NioEventloop都是单线程的)
 
-> Note: `channel` 不和 `NioEventLoop` 进行绑定(但是实际上是有这个关系的)，这个关系由 `pipeline` 维系
+> Note: `channel` 和 `NioEventLoop` 进行绑定..
+
+[blog地址](https://www.yuque.com/chenshun00/ogqvw6)
+
+
+
